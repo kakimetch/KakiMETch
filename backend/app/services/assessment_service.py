@@ -7,7 +7,6 @@ from psycopg2.extras import Json
 from app.database import get_connection
 from app.schemas.assessment import AssessmentResult
 
-
 # MVP geographic boundary based on South West Singapore place names.
 SOUTHWEST_AREA_KEYWORDS = (
     "boon lay",

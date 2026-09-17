@@ -95,11 +95,11 @@ export class ApiError extends Error {
     super(
       typeof detail === "string"
         ? detail
-        : detail?.message ?? "Something went wrong. Please try again.",
+        : (detail?.message ?? "Something went wrong. Please try again."),
     );
     this.name = "ApiError";
     this.status = status;
-    this.issues = typeof detail === "object" ? detail.issues ?? [] : [];
+    this.issues = typeof detail === "object" ? (detail.issues ?? []) : [];
   }
 }
 
@@ -131,7 +131,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-export const getMatchingQueue = () => request<MatchingQueueItem[]>("/matching-queue");
+export const getMatchingQueue = () =>
+  request<MatchingQueueItem[]>("/matching-queue");
 
 export const getScheduledTrips = () => request<ScheduledTrip[]>("/schedule");
 
@@ -140,7 +141,6 @@ export const getEscortSuggestions = (tripId: string) =>
 
 export const getEscortOptions = (tripId: string) =>
   request<EscortOption[]>(`/trips/${tripId}/escort-options`);
-
 
 export const updateMatchingProfile = (
   elderlyId: string,
@@ -235,17 +235,15 @@ export interface PatientDetail {
   last_visit: string | null;
 }
 
-export type PatientWrite = Omit<
-  PatientDetail,
-  "id" | "address" | "last_visit"
->;
+export type PatientWrite = Omit<PatientDetail, "id" | "address" | "last_visit">;
 
 export interface ImportSummary {
   imported_count: number;
   skipped_count: number;
 }
 
-export const getPatients = () => request<PatientSummary[]>("/registry/patients");
+export const getPatients = () =>
+  request<PatientSummary[]>("/registry/patients");
 
 export const getPatient = (patientId: string) =>
   request<PatientDetail>(`/registry/patients/${patientId}`);
