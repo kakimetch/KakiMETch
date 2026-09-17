@@ -5,7 +5,7 @@
 create table public.elderly_clients (
     id uuid primary key default gen_random_uuid(),
     name text not null,
-    nric text unique,
+    nric text,
     aic_registration_no text,
     postal_code text,
     block text,
@@ -38,6 +38,7 @@ create table public.elderly_clients (
         check (lh_mobility_status in ('ambulant', 'wheelchair_user', 'walking_frame_user', 'bed_bound', 'unknown')),
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
+    deleted_at timestamptz,
     check (lh_service_agreement is null or lh_service_agreement in ('Y', 'N', 'Pending')),
     check (sw_service_agreement is null or sw_service_agreement in ('Y', 'N', 'Pending'))
 );
@@ -84,3 +85,9 @@ create index trips_status_appt_date_idx on public.trips (status, appt_date);
 create index trips_escort_appointment_idx on public.trips (escort_id, appt_date, appt_time)
     where status = 'scheduled';
 create index trips_elderly_id_idx on public.trips (elderly_id);
+create unique index elderly_clients_active_nric_idx
+    on public.elderly_clients (nric)
+    where deleted_at is null and nric is not null;
+create index elderly_clients_active_name_idx
+    on public.elderly_clients (name)
+    where deleted_at is null;

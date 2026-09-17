@@ -107,6 +107,7 @@ def assess_trip(trip_id: UUID) -> AssessmentResult:
                 from public.trips
                 join public.elderly_clients on elderly_clients.id = trips.elderly_id
                 where trips.id = %s
+                  and elderly_clients.deleted_at is null
                 for update
                 """,
                 (trip_id,),

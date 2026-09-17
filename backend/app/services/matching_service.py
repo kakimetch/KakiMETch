@@ -113,6 +113,7 @@ def get_escort_suggestions(trip_id: UUID, limit: int = 3) -> MatchResult:
                 from public.trips
                 join public.elderly_clients on elderly_clients.id = trips.elderly_id
                 where trips.id = %s
+                  and elderly_clients.deleted_at is null
                 """,
                 (trip_id,),
             )

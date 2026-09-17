@@ -45,6 +45,7 @@ def confirm_escort(
                 from public.trips
                 join public.elderly_clients on elderly_clients.id = trips.elderly_id
                 where trips.id = %s
+                  and elderly_clients.deleted_at is null
                 for update of trips
                 """,
                 (trip_id,),
@@ -141,6 +142,7 @@ def get_scheduled_trips() -> list[ScheduledTrip]:
                 join public.elderly_clients on elderly_clients.id = trips.elderly_id
                 join public.escorts on escorts.id = trips.escort_id
                 where trips.status = 'scheduled'
+                  and elderly_clients.deleted_at is null
                 order by trips.appt_date, trips.appt_time, elderly_clients.name
                 """
             )

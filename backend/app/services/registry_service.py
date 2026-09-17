@@ -57,11 +57,12 @@ class ImportFormatError(Exception):
     pass
 
 
-def get_patients() -> list[PatientSummary]:
+def get_patients(deleted: bool = False) -> list[PatientSummary]:
+    deleted_filter = "is not null" if deleted else "is null"
     with get_connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                """
+                f"""
                 select
                     elderly_clients.id,
                     elderly_clients.name,
@@ -69,6 +70,7 @@ def get_patients() -> list[PatientSummary]:
                     elderly_clients.postal_code,
                     elderly_clients.nmtr_percentage,
                     elderly_clients.escort_required,
+                    elderly_clients.deleted_at,
                     (
                         select max(trips.appt_date)
                         from public.trips
@@ -76,6 +78,7 @@ def get_patients() -> list[PatientSummary]:
                           and trips.appt_date <= current_date
                     ) as last_visit
                 from public.elderly_clients
+                where elderly_clients.deleted_at {deleted_filter}
                 order by elderly_clients.name
                 """
             )
@@ -131,6 +134,7 @@ def update_patient(patient_id: UUID, request: PatientWrite) -> PatientDetail:
                     update public.elderly_clients
                     set {assignments}, address = %(address)s, updated_at = now()
                     where id = %(patient_id)s
+                      and deleted_at is null
                     returning id
                     """,
                     params,
@@ -140,6 +144,49 @@ def update_patient(patient_id: UUID, request: PatientWrite) -> PatientDetail:
         raise DuplicateNricError from error
 
     if updated is None:
+        raise PatientNotFoundError
+
+    return get_patient(patient_id)
+
+
+def delete_patient(patient_id: UUID) -> None:
+    with get_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                update public.elderly_clients
+                set deleted_at = now(), updated_at = now()
+                where id = %s
+                  and deleted_at is null
+                returning id
+                """,
+                (patient_id,),
+            )
+            deleted = cursor.fetchone()
+
+    if deleted is None:
+        raise PatientNotFoundError
+
+
+def restore_patient(patient_id: UUID) -> PatientDetail:
+    try:
+        with get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    update public.elderly_clients
+                    set deleted_at = null, updated_at = now()
+                    where id = %s
+                      and deleted_at is not null
+                    returning id
+                    """,
+                    (patient_id,),
+                )
+                restored = cursor.fetchone()
+    except psycopg2.errors.UniqueViolation as error:
+        raise DuplicateNricError from error
+
+    if restored is None:
         raise PatientNotFoundError
 
     return get_patient(patient_id)
@@ -241,7 +288,7 @@ def _upsert_patient_from_excel_row(cursor: RealDictCursor, row: Mapping[str, obj
             %(wheelchair_required)s, %(walking_frame_required)s,
             %(caregiver_or_maid_available)s, %(gender)s, %(address_source)s, %(dialect)s,
             %(weight_kg)s, %(nmtr_percentage)s, %(aic_mobility_status)s, %(lh_mobility_status)s
-        ) on conflict (nric) do update set
+        ) on conflict (nric) where deleted_at is null and nric is not null do update set
             -- aic/lh_mobility_status are intentionally left untouched on conflict: a re-import
             -- must not clobber a mobility assessment the admin has since corrected by hand,
             -- since the master data export never carries that field, only equipment flags.
