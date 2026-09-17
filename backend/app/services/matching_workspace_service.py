@@ -44,6 +44,7 @@ def get_matching_queue() -> list[MatchingQueueItem]:
                     on elderly_clients.id = trips.elderly_id
                 where trips.status = 'accepted'
                   and elderly_clients.escort_required = true
+                  and elderly_clients.deleted_at is null
                 order by trips.appt_date, trips.appt_time, elderly_clients.name
                 """)
             rows: list[Mapping[str, object]] = cursor.fetchall()
@@ -67,6 +68,7 @@ def update_matching_profile(
                     gender_preference = %s,
                     updated_at = now()
                 where id = %s
+                  and deleted_at is null
                 returning
                     id as elderly_id,
                     nullif(trim(dialect), '') as dialect,
@@ -104,6 +106,7 @@ def get_escort_options(trip_id: UUID) -> list[EscortOption]:
                 join public.elderly_clients
                     on elderly_clients.id = trips.elderly_id
                 where trips.id = %s
+                  and elderly_clients.deleted_at is null
                 """,
                 (trip_id,),
             )
