@@ -8,6 +8,22 @@ permissions:
   contents: read
 
 jobs:
+  commit-messages:
+    name: Commit Messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check commit messages
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          else
+            range="${{ github.event.before }}..${{ github.sha }}"
+          fi
+          .github/scripts/check-commit-messages.sh "$range"
+
   frontend:
     name: Frontend
     runs-on: ubuntu-latest
