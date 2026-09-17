@@ -7,8 +7,18 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 from app.database import get_connection
-from app.schemas.registry import ImportSummary, PatientDetail, PatientSummary, PatientWrite
-from scripts.load_demo_data import as_text, is_yes, mobility_from_equipment, parse_excel_date
+from app.schemas.registry import (
+    ImportSummary,
+    PatientDetail,
+    PatientSummary,
+    PatientWrite,
+)
+from scripts.load_demo_data import (
+    as_text,
+    is_yes,
+    mobility_from_equipment,
+    parse_excel_date,
+)
 
 REQUIRED_IMPORT_COLUMNS = ("NAME",)
 
@@ -60,8 +70,7 @@ class ImportFormatError(Exception):
 def get_patients() -> list[PatientSummary]:
     with get_connection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
+            cursor.execute("""
                 select
                     elderly_clients.id,
                     elderly_clients.name,
@@ -77,8 +86,7 @@ def get_patients() -> list[PatientSummary]:
                     ) as last_visit
                 from public.elderly_clients
                 order by elderly_clients.name
-                """
-            )
+                """)
             rows: list[Mapping[str, object]] = cursor.fetchall()
 
     return [PatientSummary.model_validate(row) for row in rows]
@@ -174,12 +182,16 @@ def _is_blank_row(row: Mapping[str, object]) -> bool:
     return all(as_text(value) == "" for value in row.values())
 
 
-def build_address(block: str | None, street_name: str | None, unit: str | None) -> str | None:
+def build_address(
+    block: str | None, street_name: str | None, unit: str | None
+) -> str | None:
     parts = [part for part in (block, street_name, unit) if part]
     return " ".join(parts) or None
 
 
-def _fetch_patient_row(cursor: RealDictCursor, patient_id: UUID) -> Mapping[str, object] | None:
+def _fetch_patient_row(
+    cursor: RealDictCursor, patient_id: UUID
+) -> Mapping[str, object] | None:
     cursor.execute(
         """
         select
@@ -202,7 +214,9 @@ def _read_workbook_rows(
     file_bytes: bytes,
 ) -> tuple[tuple[str, ...], list[dict[str, object]]]:
     try:
-        workbook = openpyxl.load_workbook(BytesIO(file_bytes), read_only=True, data_only=True)
+        workbook = openpyxl.load_workbook(
+            BytesIO(file_bytes), read_only=True, data_only=True
+        )
         worksheet = workbook.active
         if worksheet is None:
             raise ImportFormatError("The uploaded file has no worksheet.")
@@ -215,13 +229,19 @@ def _read_workbook_rows(
     except StopIteration as error:
         raise ImportFormatError("The uploaded file is empty.") from error
     except Exception as error:
-        raise ImportFormatError("Could not read the uploaded file. Please upload a valid .xlsx file.") from error
+        raise ImportFormatError(
+            "Could not read the uploaded file. Please upload a valid .xlsx file."
+        ) from error
 
     return headers, rows
 
 
-def _upsert_patient_from_excel_row(cursor: RealDictCursor, row: Mapping[str, object]) -> None:
-    mobility_status = mobility_from_equipment(row.get("Wheelchair (WC)"), row.get("Walking Frame/ Stick"))
+def _upsert_patient_from_excel_row(
+    cursor: RealDictCursor, row: Mapping[str, object]
+) -> None:
+    mobility_status = mobility_from_equipment(
+        row.get("Wheelchair (WC)"), row.get("Walking Frame/ Stick")
+    )
     cursor.execute(
         """
         insert into public.elderly_clients (
@@ -291,8 +311,12 @@ def _upsert_patient_from_excel_row(cursor: RealDictCursor, row: Mapping[str, obj
             "escort_required": is_yes(row.get("Escort (Y/N)")),
             "co_payment": row.get("Co-payment"),
             "date_of_birth": parse_excel_date(row.get("DOB (YYYYMMDD)")),
-            "nmts_effective_date": parse_excel_date(row.get("NMTS effective date (YYYYMMDD)")),
-            "nmts_expired_date": parse_excel_date(row.get("NMTS expired date (YYYYMMDD)")),
+            "nmts_effective_date": parse_excel_date(
+                row.get("NMTS effective date (YYYYMMDD)")
+            ),
+            "nmts_expired_date": parse_excel_date(
+                row.get("NMTS expired date (YYYYMMDD)")
+            ),
             "date_of_entry": parse_excel_date(row.get("Date Of Entry (YYYMMDD)")),
             "action_updated_date": as_text(row.get("Action/updated date")) or None,
             "lh_service_agreement": as_text(row.get("LH Service Agreement")) or None,

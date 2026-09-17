@@ -2,7 +2,12 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, UploadFile, status
 
-from app.schemas.registry import ImportSummary, PatientDetail, PatientSummary, PatientWrite
+from app.schemas.registry import (
+    ImportSummary,
+    PatientDetail,
+    PatientSummary,
+    PatientWrite,
+)
 from app.services.registry_service import (
     DuplicateNricError,
     ImportFormatError,
@@ -33,7 +38,9 @@ def get_patient_endpoint(patient_id: UUID) -> PatientDetail:
         ) from error
 
 
-@router.post("/patients", response_model=PatientDetail, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/patients", response_model=PatientDetail, status_code=status.HTTP_201_CREATED
+)
 def create_patient_endpoint(request: PatientWrite) -> PatientDetail:
     try:
         return create_patient(request)

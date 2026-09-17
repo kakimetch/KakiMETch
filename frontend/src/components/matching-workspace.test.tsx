@@ -52,7 +52,10 @@ beforeEach(() => {
       destination: "Ng Teng Fong General Hospital",
     },
   ]);
-  apiMocks.getEscortSuggestions.mockResolvedValue({ suggestions: [suggestion], warning: null });
+  apiMocks.getEscortSuggestions.mockResolvedValue({
+    suggestions: [suggestion],
+    warning: null,
+  });
   apiMocks.getEscortOptions.mockResolvedValue([]);
   apiMocks.confirmEscort.mockResolvedValue({
     trip_id: trip.trip_id,
@@ -67,26 +70,38 @@ describe("MatchingWorkspace", () => {
     const user = userEvent.setup();
     render(<MatchingWorkspace />);
 
-    const patientCard = await screen.findByRole("button", { name: /Mdm Lim Siew Hoon/i });
+    const patientCard = await screen.findByRole("button", {
+      name: /Mdm Lim Siew Hoon/i,
+    });
     expect(patientCard).toHaveTextContent("Tue, 8 Sept 2026 at 10:00 am");
     expect(patientCard).toHaveTextContent("Jurong Community Hospital");
     expect(screen.queryByText("Hokkien")).not.toBeInTheDocument();
 
     await user.click(patientCard);
 
-    const drawer = await screen.findByRole("dialog", { name: "Mdm Lim Siew Hoon" });
+    const drawer = await screen.findByRole("dialog", {
+      name: "Mdm Lim Siew Hoon",
+    });
     expect(within(drawer).getByText("Hokkien")).toBeInTheDocument();
-    expect(await within(drawer).findByText("Speaks Hokkien")).toBeInTheDocument();
-    expect(within(drawer).queryByText(/3 points|match score/i)).not.toBeInTheDocument();
+    expect(
+      await within(drawer).findByText("Speaks Hokkien"),
+    ).toBeInTheDocument();
+    expect(
+      within(drawer).queryByText(/3 points|match score/i),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps selection and confirmation as separate actions", async () => {
     const user = userEvent.setup();
     render(<MatchingWorkspace />);
-    await user.click(await screen.findByRole("button", { name: /Mdm Lim Siew Hoon/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /Mdm Lim Siew Hoon/i }),
+    );
 
     const radio = await screen.findByRole("radio", { name: /Mei Ling/i });
-    const confirmButton = screen.getByRole("button", { name: "Select an escort first" });
+    const confirmButton = screen.getByRole("button", {
+      name: "Select an escort first",
+    });
     expect(confirmButton).toBeDisabled();
 
     await user.click(radio);
@@ -94,9 +109,13 @@ describe("MatchingWorkspace", () => {
 
     expect(apiMocks.confirmEscort).toHaveBeenCalledWith("trip-1", "escort-1");
     expect(await screen.findByText("Mei Ling is assigned")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Match next appointment" }));
+    await user.click(
+      screen.getByRole("button", { name: "Match next appointment" }),
+    );
     await waitFor(() =>
-      expect(screen.queryByRole("button", { name: /Mdm Lim Siew Hoon/i })).not.toBeInTheDocument(),
+      expect(
+        screen.queryByRole("button", { name: /Mdm Lim Siew Hoon/i }),
+      ).not.toBeInTheDocument(),
     );
   });
 
@@ -120,13 +139,22 @@ describe("MatchingWorkspace", () => {
     ]);
 
     render(<MatchingWorkspace />);
-    await user.click(await screen.findByRole("button", { name: /Mdm Lim Siew Hoon/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /Mdm Lim Siew Hoon/i }),
+    );
     expect(await screen.findByText("Manual review needed")).toBeInTheDocument();
-    await user.click(await screen.findByRole("radio", { name: /Siti Aishah/i }));
+    await user.click(
+      await screen.findByRole("radio", { name: /Siti Aishah/i }),
+    );
 
-    const overrideButton = screen.getByRole("button", { name: "Confirm Siti Aishah with override" });
+    const overrideButton = screen.getByRole("button", {
+      name: "Confirm Siti Aishah with override",
+    });
     expect(overrideButton).toBeDisabled();
-    await user.type(screen.getByLabelText("Reason for overriding"), "Escort confirmed availability by phone.");
+    await user.type(
+      screen.getByLabelText("Reason for overriding"),
+      "Escort confirmed availability by phone.",
+    );
     expect(overrideButton).toBeEnabled();
     await user.click(overrideButton);
 
@@ -146,7 +174,9 @@ describe("MatchingWorkspace", () => {
       gender_preference: "F",
     });
     render(<MatchingWorkspace />);
-    await user.click(await screen.findByRole("button", { name: /Mdm Lim Siew Hoon/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /Mdm Lim Siew Hoon/i }),
+    );
     await screen.findByText("Speaks Hokkien");
     await user.click(screen.getByRole("button", { name: "Edit" }));
 
@@ -162,7 +192,11 @@ describe("MatchingWorkspace", () => {
         gender_preference: "F",
       }),
     );
-    expect(await screen.findByText("Details saved. Suggestions have been refreshed.")).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        "Details saved. Suggestions have been refreshed.",
+      ),
+    ).toBeInTheDocument();
     expect(apiMocks.getEscortSuggestions).toHaveBeenCalledTimes(2);
   });
 
@@ -174,7 +208,9 @@ describe("MatchingWorkspace", () => {
 
     expect(await screen.findByText("Mr Tan Ah Kow")).toBeInTheDocument();
     expect(screen.getByText("Siti Aishah")).toBeInTheDocument();
-    expect(screen.getByText("Ng Teng Fong General Hospital")).toBeInTheDocument();
+    expect(
+      screen.getByText("Ng Teng Fong General Hospital"),
+    ).toBeInTheDocument();
     expect(apiMocks.getScheduledTrips).toHaveBeenCalledTimes(1);
     expect(screen.queryByText("Hokkien")).not.toBeInTheDocument();
   });

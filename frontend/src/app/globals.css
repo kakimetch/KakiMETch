@@ -36,7 +36,12 @@ body {
   margin: 0;
   background: var(--desk);
   color: var(--ink);
-  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -304,7 +309,9 @@ input::placeholder {
   background: var(--paper);
   text-align: left;
   cursor: pointer;
-  transition: border-color 160ms ease-out, background-color 160ms ease-out;
+  transition:
+    border-color 160ms ease-out,
+    background-color 160ms ease-out;
 }
 
 .existing-module {
@@ -759,7 +766,9 @@ input::placeholder {
   border-radius: var(--radius);
   background: var(--paper);
   cursor: pointer;
-  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+  transition:
+    border-color 150ms ease-out,
+    background-color 150ms ease-out;
 }
 
 .suggestion-row:hover,
@@ -1155,18 +1164,32 @@ input::placeholder {
 }
 
 @keyframes drawer-in {
-  from { transform: translateX(22px); opacity: 0.88; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(22px);
+    opacity: 0.88;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes skeleton-shift {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (max-width: 760px) {

@@ -147,13 +147,17 @@ export function PatientRegistry() {
   return (
     <div className="app-shell">
       <header className="product-header">
-        <div className="brand-mark" aria-hidden="true">KM</div>
+        <div className="brand-mark" aria-hidden="true">
+          KM
+        </div>
         <div>
           <strong>KakiMETch</strong>
         </div>
         <nav className="header-nav" aria-label="KakiMETch sections">
           <Link href="/">Escort matching</Link>
-          <Link href="/registry" aria-current="page">Patient registry</Link>
+          <Link href="/registry" aria-current="page">
+            Patient registry
+          </Link>
         </nav>
         <span className="demo-label">Demo workspace</span>
       </header>
@@ -163,9 +167,15 @@ export function PatientRegistry() {
           <div>
             <p className="eyebrow">Loving Heart client database</p>
             <h1>Patient registry</h1>
-            <p>Search the client roster, review or correct a client&apos;s biodata, or add new clients one at a time or in bulk.</p>
+            <p>
+              Search the client roster, review or correct a client&apos;s
+              biodata, or add new clients one at a time or in bulk.
+            </p>
           </div>
-          <span className="patient-count" aria-label={`${patients.length} patients in the registry`}>
+          <span
+            className="patient-count"
+            aria-label={`${patients.length} patients in the registry`}
+          >
             {patients.length} patients
           </span>
         </div>
@@ -173,7 +183,9 @@ export function PatientRegistry() {
         <div className="registry-toolbar">
           <label className="search-field">
             <Search size={20} aria-hidden="true" />
-            <span className="sr-only">Search by patient name, NRIC or postal code</span>
+            <span className="sr-only">
+              Search by patient name, NRIC or postal code
+            </span>
             <input
               type="search"
               value={search}
@@ -182,7 +194,11 @@ export function PatientRegistry() {
             />
           </label>
           <div className="registry-actions">
-            <button type="button" className="secondary-button" onClick={() => setImportOpen(true)}>
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => setImportOpen(true)}
+            >
               <FileSpreadsheet size={18} aria-hidden="true" /> Import Excel
             </button>
             <button type="button" className="primary-button" onClick={openAdd}>
@@ -209,9 +225,15 @@ export function PatientRegistry() {
               message="Add a patient manually or import the LH master data Excel file to get started."
             />
           )}
-          {listState === "success" && patients.length > 0 && filteredPatients.length === 0 && (
-            <MessageState kind="neutral" title="No patient found" message="Try a different name, NRIC or postal code." />
-          )}
+          {listState === "success" &&
+            patients.length > 0 &&
+            filteredPatients.length === 0 && (
+              <MessageState
+                kind="neutral"
+                title="No patient found"
+                message="Try a different name, NRIC or postal code."
+              />
+            )}
           {filteredPatients.length > 0 && (
             <div className="patient-grid">
               {filteredPatients.map((patient) => (
@@ -228,11 +250,15 @@ export function PatientRegistry() {
                   <div className="registry-module-body">
                     <span className="module-detail">
                       <IdCard size={19} aria-hidden="true" />
-                      <span className="registry-identifier">{patient.nric ?? "NRIC not recorded"}</span>
+                      <span className="registry-identifier">
+                        {patient.nric ?? "NRIC not recorded"}
+                      </span>
                     </span>
                     <span className="module-detail">
                       <MapPin size={19} aria-hidden="true" />
-                      <span>{patient.postal_code ?? "Postal code not recorded"}</span>
+                      <span>
+                        {patient.postal_code ?? "Postal code not recorded"}
+                      </span>
                     </span>
                     <span className="module-detail">
                       <CalendarDays size={19} aria-hidden="true" />
@@ -243,9 +269,15 @@ export function PatientRegistry() {
                     <span className="registry-badge">
                       {formatSubsidy(patient.nmtr_percentage)}
                     </span>
-                    {patient.escort_required && <span className="registry-badge escort">Escort required</span>}
+                    {patient.escort_required && (
+                      <span className="registry-badge escort">
+                        Escort required
+                      </span>
+                    )}
                   </span>
-                  <span className="module-open">View biodata <ChevronRight size={19} aria-hidden="true" /></span>
+                  <span className="module-open">
+                    View biodata <ChevronRight size={19} aria-hidden="true" />
+                  </span>
                 </button>
               ))}
             </div>
@@ -255,12 +287,27 @@ export function PatientRegistry() {
 
       {drawerMode && (
         <>
-          <button className="drawer-scrim" type="button" tabIndex={-1} onClick={closeDrawer} aria-label="Close patient details" />
-          <PatientDrawer mode={drawerMode} onClose={closeDrawer} onSaved={handleSaved} />
+          <button
+            className="drawer-scrim"
+            type="button"
+            tabIndex={-1}
+            onClick={closeDrawer}
+            aria-label="Close patient details"
+          />
+          <PatientDrawer
+            mode={drawerMode}
+            onClose={closeDrawer}
+            onSaved={handleSaved}
+          />
         </>
       )}
 
-      {importOpen && <ImportModal onClose={() => setImportOpen(false)} onImported={() => void loadPatients()} />}
+      {importOpen && (
+        <ImportModal
+          onClose={() => setImportOpen(false)}
+          onImported={() => void loadPatients()}
+        />
+      )}
     </div>
   );
 }
@@ -277,7 +324,9 @@ function PatientDrawer({
   const closeRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const [detail, setDetail] = useState<PatientDetail | null>(null);
-  const [loadState, setLoadState] = useState<LoadState>(mode.kind === "edit" ? "loading" : "success");
+  const [loadState, setLoadState] = useState<LoadState>(
+    mode.kind === "edit" ? "loading" : "success",
+  );
   const [loadError, setLoadError] = useState("");
   const [appointmentOpen, setAppointmentOpen] = useState(false);
 
@@ -334,53 +383,58 @@ function PatientDrawer({
   }, [onClose]);
 
   return (
-    <aside ref={drawerRef} className="patient-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+    <aside
+      ref={drawerRef}
+      className="patient-drawer"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="drawer-title"
+    >
       <header className="drawer-header">
         <h2 id="drawer-title" style={{ fontSize: "1.1rem" }}>
-          {mode.kind === "add" ? "Add new patient" : detail?.name ?? "Patient"}
+          {mode.kind === "add"
+            ? "Add new patient"
+            : (detail?.name ?? "Patient")}
         </h2>
-        <button ref={closeRef} type="button" className="close-button" onClick={onClose} aria-label="Close patient details">
+        <button
+          ref={closeRef}
+          type="button"
+          className="close-button"
+          onClick={onClose}
+          aria-label="Close patient details"
+        >
           <X size={22} aria-hidden="true" />
         </button>
       </header>
       {mode.kind === "edit" && loadState === "loading" && (
-      <div className="drawer-content">
-        <div
-          className="skeleton-stack"
-          style={{ padding: 36 }}
-          aria-label="Loading patient details"
-        >
-          {[1, 2, 3].map((item) => (
-            <span
-              className="skeleton suggestion-skeleton"
-              key={item}
-            />
-          ))}
+        <div className="drawer-content">
+          <div
+            className="skeleton-stack"
+            style={{ padding: 36 }}
+            aria-label="Loading patient details"
+          >
+            {[1, 2, 3].map((item) => (
+              <span className="skeleton suggestion-skeleton" key={item} />
+            ))}
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
-    {mode.kind === "edit" && loadState === "error" && (
-      <div className="drawer-content" style={{ padding: 36 }}>
-        <MessageState
-          kind="error"
-          title="Patient could not load"
-          message={loadError}
-        />
-      </div>
-    )}
+      {mode.kind === "edit" && loadState === "error" && (
+        <div className="drawer-content" style={{ padding: 36 }}>
+          <MessageState
+            kind="error"
+            title="Patient could not load"
+            message={loadError}
+          />
+        </div>
+      )}
 
-    {mode.kind === "add" && (
-      <PatientForm
-        patientId={null}
-        initial={null}
-        onSaved={onSaved}
-      />
-    )}
+      {mode.kind === "add" && (
+        <PatientForm patientId={null} initial={null} onSaved={onSaved} />
+      )}
 
-    {mode.kind === "edit" &&
-      loadState === "success" &&
-      detail && (
+      {mode.kind === "edit" && loadState === "success" && detail && (
         <>
           {!appointmentOpen ? (
             <>
@@ -410,7 +464,7 @@ function PatientDrawer({
           )}
         </>
       )}
-      </aside>
+    </aside>
   );
 }
 function CreateAppointmentForm({
@@ -428,9 +482,11 @@ function CreateAppointmentForm({
 
   const [saveState, setSaveState] = useState<LoadState>("idle");
   const [saveError, setSaveError] = useState("");
-  const [createdAppointment, setCreatedAppointment] = useState<AppointmentCreated | null>(null);
+  const [createdAppointment, setCreatedAppointment] =
+    useState<AppointmentCreated | null>(null);
 
-  const [assessmentResult, setAssessmentResult] = useState<AssessmentResult | null>(null);
+  const [assessmentResult, setAssessmentResult] =
+    useState<AssessmentResult | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -466,13 +522,10 @@ function CreateAppointmentForm({
 
       setCreatedAppointment(appointment);
 
-      const assessment = await assessAppointment(
-        appointment.trip_id,
-      );
+      const assessment = await assessAppointment(appointment.trip_id);
 
       setAssessmentResult(assessment);
       setSaveState("success");
-
     } catch (error) {
       setSaveState("error");
       setSaveError(friendlyError(error));
@@ -483,20 +536,13 @@ function CreateAppointmentForm({
 
     return (
       <div className="drawer-content">
-        <section
-          className="drawer-section"
-          aria-live="polite"
-        >
+        <section className="drawer-section" aria-live="polite">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">
-                Assessment complete
-              </p>
+              <p className="eyebrow">Assessment complete</p>
 
               <h3>
-                {accepted
-                  ? "Appointment accepted"
-                  : "Appointment rejected"}
+                {accepted ? "Appointment accepted" : "Appointment rejected"}
               </h3>
             </div>
           </div>
@@ -530,13 +576,9 @@ function CreateAppointmentForm({
               <strong>Reasons</strong>
 
               <ul>
-                {assessmentResult.reasons.map(
-                  (reason, index) => (
-                    <li key={`${reason}-${index}`}>
-                      {reason}
-                    </li>
-                  ),
-                )}
+                {assessmentResult.reasons.map((reason, index) => (
+                  <li key={`${reason}-${index}`}>{reason}</li>
+                ))}
               </ul>
             </div>
           )}
@@ -546,27 +588,18 @@ function CreateAppointmentForm({
               <strong>Warnings</strong>
 
               <ul>
-                {assessmentResult.warnings.map(
-                  (warning, index) => (
-                    <li key={`${warning}-${index}`}>
-                      {warning}
-                    </li>
-                  ),
-                )}
+                {assessmentResult.warnings.map((warning, index) => (
+                  <li key={`${warning}-${index}`}>{warning}</li>
+                ))}
               </ul>
             </div>
           )}
 
-          <div
-            className="form-actions"
-            style={{ marginTop: 28 }}
-          >
+          <div className="form-actions" style={{ marginTop: 28 }}>
             <button
               type="button"
               className="primary-button"
-              onClick={() =>
-                onCreated(createdAppointment)
-              }
+              onClick={() => onCreated(createdAppointment)}
             >
               Done
             </button>
@@ -576,20 +609,12 @@ function CreateAppointmentForm({
     );
   }
   return (
-    <form
-      className="drawer-content"
-      onSubmit={handleSubmit}
-    >
-      <section
-        className="drawer-section"
-        aria-labelledby="appointment-heading"
-      >
+    <form className="drawer-content" onSubmit={handleSubmit}>
+      <section className="drawer-section" aria-labelledby="appointment-heading">
         <div className="section-heading">
           <div>
             <p className="eyebrow">New appointment</p>
-            <h3 id="appointment-heading">
-              Appointment details
-            </h3>
+            <h3 id="appointment-heading">Appointment details</h3>
           </div>
         </div>
 
@@ -631,23 +656,14 @@ function CreateAppointmentForm({
         </div>
       </section>
 
-      <section
-        className="drawer-section"
-        style={{ borderBottom: 0 }}
-      >
+      <section className="drawer-section" style={{ borderBottom: 0 }}>
         {saveError && (
-          <p
-            className="inline-message error"
-            role="alert"
-          >
+          <p className="inline-message error" role="alert">
             {saveError}
           </p>
         )}
 
-        <div
-          className="form-actions"
-          style={{ marginTop: saveError ? 16 : 0 }}
-        >
+        <div className="form-actions" style={{ marginTop: saveError ? 16 : 0 }}>
           <button
             type="button"
             className="secondary-button"
@@ -662,9 +678,7 @@ function CreateAppointmentForm({
             className="primary-button"
             disabled={saveState === "loading"}
           >
-            {saveState === "loading"
-              ? "Creating…"
-              : "Create appointment"}
+            {saveState === "loading" ? "Creating…" : "Create appointment"}
           </button>
         </div>
       </section>
@@ -751,7 +765,11 @@ function toFormState(detail: PatientDetail): FormState {
     contact_no: detail.contact_no ?? "",
     caregiver_name: detail.caregiver_name ?? "",
     caregiver_or_maid_available:
-      detail.caregiver_or_maid_available === null ? "" : detail.caregiver_or_maid_available ? "yes" : "no",
+      detail.caregiver_or_maid_available === null
+        ? ""
+        : detail.caregiver_or_maid_available
+          ? "yes"
+          : "no",
     wheelchair_required: detail.wheelchair_required,
     walking_frame_required: detail.walking_frame_required,
     aic_mobility_status: detail.aic_mobility_status,
@@ -765,7 +783,10 @@ function toFormState(detail: PatientDetail): FormState {
     lh_service_agreement: detail.lh_service_agreement ?? "",
     sw_service_agreement: detail.sw_service_agreement ?? "",
     co_payment: detail.co_payment?.toString() ?? "",
-    nmtr_percentage: detail.nmtr_percentage !== null ? Math.round(detail.nmtr_percentage * 100).toString() : "",
+    nmtr_percentage:
+      detail.nmtr_percentage !== null
+        ? Math.round(detail.nmtr_percentage * 100).toString()
+        : "",
     date_of_entry: detail.date_of_entry ?? "",
     action_updated_date: detail.action_updated_date ?? "",
   };
@@ -786,7 +807,9 @@ function toPatientWrite(form: FormState): PatientWrite {
     contact_no: form.contact_no.trim() || null,
     caregiver_name: form.caregiver_name.trim() || null,
     caregiver_or_maid_available:
-      form.caregiver_or_maid_available === "" ? null : form.caregiver_or_maid_available === "yes",
+      form.caregiver_or_maid_available === ""
+        ? null
+        : form.caregiver_or_maid_available === "yes",
     wheelchair_required: form.wheelchair_required,
     walking_frame_required: form.walking_frame_required,
     aic_mobility_status: form.aic_mobility_status,
@@ -800,7 +823,9 @@ function toPatientWrite(form: FormState): PatientWrite {
     lh_service_agreement: form.lh_service_agreement || null,
     sw_service_agreement: form.sw_service_agreement || null,
     co_payment: form.co_payment.trim() ? Number(form.co_payment) : null,
-    nmtr_percentage: form.nmtr_percentage.trim() ? Number(form.nmtr_percentage) / 100 : null,
+    nmtr_percentage: form.nmtr_percentage.trim()
+      ? Number(form.nmtr_percentage) / 100
+      : null,
     date_of_entry: form.date_of_entry || null,
     action_updated_date: form.action_updated_date.trim() || null,
   };
@@ -838,7 +863,9 @@ function PatientForm({
   initial: PatientDetail | null;
   onSaved: () => void;
 }) {
-  const [form, setForm] = useState<FormState>(initial ? toFormState(initial) : BLANK_FORM);
+  const [form, setForm] = useState<FormState>(
+    initial ? toFormState(initial) : BLANK_FORM,
+  );
   const [saveState, setSaveState] = useState<LoadState>("idle");
   const [saveError, setSaveError] = useState("");
 
@@ -875,20 +902,37 @@ function PatientForm({
     <form className="drawer-content" onSubmit={handleSubmit}>
       <section className="drawer-section" aria-labelledby="identity-heading">
         <div className="section-heading">
-          <div><p className="eyebrow">Identity</p><h3 id="identity-heading">Name and identification</h3></div>
+          <div>
+            <p className="eyebrow">Identity</p>
+            <h3 id="identity-heading">Name and identification</h3>
+          </div>
         </div>
         <div className="registry-form-grid">
           <label>
             <span>Full name</span>
-            <input value={form.name} onChange={(event) => setField("name", event.target.value)} required maxLength={200} />
+            <input
+              value={form.name}
+              onChange={(event) => setField("name", event.target.value)}
+              required
+              maxLength={200}
+            />
           </label>
           <label>
             <span>NRIC / IC number</span>
-            <input value={form.nric} onChange={(event) => setField("nric", event.target.value)} maxLength={20} />
+            <input
+              value={form.nric}
+              onChange={(event) => setField("nric", event.target.value)}
+              maxLength={20}
+            />
           </label>
           <label>
             <span>Gender</span>
-            <select value={form.gender} onChange={(event) => setField("gender", event.target.value as FormState["gender"])}>
+            <select
+              value={form.gender}
+              onChange={(event) =>
+                setField("gender", event.target.value as FormState["gender"])
+              }
+            >
               <option value="">Not recorded</option>
               <option value="F">Female</option>
               <option value="M">Male</option>
@@ -896,61 +940,118 @@ function PatientForm({
           </label>
           <label>
             <span>Date of birth</span>
-            <input type="date" value={form.date_of_birth} onChange={(event) => setField("date_of_birth", event.target.value)} />
+            <input
+              type="date"
+              value={form.date_of_birth}
+              onChange={(event) =>
+                setField("date_of_birth", event.target.value)
+              }
+            />
           </label>
           <label>
             <span>AIC registration no.</span>
-            <input value={form.aic_registration_no} onChange={(event) => setField("aic_registration_no", event.target.value)} maxLength={50} />
+            <input
+              value={form.aic_registration_no}
+              onChange={(event) =>
+                setField("aic_registration_no", event.target.value)
+              }
+              maxLength={50}
+            />
           </label>
         </div>
       </section>
 
       <section className="drawer-section" aria-labelledby="address-heading">
         <div className="section-heading">
-          <div><p className="eyebrow">Where they live</p><h3 id="address-heading">Address</h3></div>
+          <div>
+            <p className="eyebrow">Where they live</p>
+            <h3 id="address-heading">Address</h3>
+          </div>
         </div>
         <div className="registry-form-grid">
           <label>
             <span>Postal code</span>
-            <input value={form.postal_code} onChange={(event) => setField("postal_code", event.target.value)} maxLength={6} inputMode="numeric" />
+            <input
+              value={form.postal_code}
+              onChange={(event) => setField("postal_code", event.target.value)}
+              maxLength={6}
+              inputMode="numeric"
+            />
           </label>
           <label>
             <span>Block</span>
-            <input value={form.block} onChange={(event) => setField("block", event.target.value)} maxLength={20} />
+            <input
+              value={form.block}
+              onChange={(event) => setField("block", event.target.value)}
+              maxLength={20}
+            />
           </label>
           <label>
             <span>Unit</span>
-            <input value={form.unit} onChange={(event) => setField("unit", event.target.value)} maxLength={20} />
+            <input
+              value={form.unit}
+              onChange={(event) => setField("unit", event.target.value)}
+              maxLength={20}
+            />
           </label>
           <label>
             <span>Street name</span>
-            <input value={form.street_name} onChange={(event) => setField("street_name", event.target.value)} maxLength={200} />
+            <input
+              value={form.street_name}
+              onChange={(event) => setField("street_name", event.target.value)}
+              maxLength={200}
+            />
           </label>
           <label>
             <span>Address source</span>
-            <input value={form.address_source} onChange={(event) => setField("address_source", event.target.value)} maxLength={200} />
+            <input
+              value={form.address_source}
+              onChange={(event) =>
+                setField("address_source", event.target.value)
+              }
+              maxLength={200}
+            />
           </label>
         </div>
       </section>
 
       <section className="drawer-section" aria-labelledby="contact-heading">
         <div className="section-heading">
-          <div><p className="eyebrow">Getting in touch</p><h3 id="contact-heading">Contact and caregiver</h3></div>
+          <div>
+            <p className="eyebrow">Getting in touch</p>
+            <h3 id="contact-heading">Contact and caregiver</h3>
+          </div>
         </div>
         <div className="registry-form-grid">
           <label>
             <span>Contact number</span>
-            <input value={form.contact_no} onChange={(event) => setField("contact_no", event.target.value)} maxLength={30} />
+            <input
+              value={form.contact_no}
+              onChange={(event) => setField("contact_no", event.target.value)}
+              maxLength={30}
+            />
           </label>
           <label>
             <span>Caregiver name</span>
-            <input value={form.caregiver_name} onChange={(event) => setField("caregiver_name", event.target.value)} maxLength={200} />
+            <input
+              value={form.caregiver_name}
+              onChange={(event) =>
+                setField("caregiver_name", event.target.value)
+              }
+              maxLength={200}
+            />
           </label>
           <label>
             <span>Caregiver or maid available</span>
             <select
               value={form.caregiver_or_maid_available}
-              onChange={(event) => setField("caregiver_or_maid_available", event.target.value as FormState["caregiver_or_maid_available"])}
+              onChange={(event) =>
+                setField(
+                  "caregiver_or_maid_available",
+                  event.target
+                    .value as FormState["caregiver_or_maid_available"],
+                )
+              }
             >
               <option value="">Not recorded</option>
               <option value="yes">Yes</option>
@@ -962,27 +1063,66 @@ function PatientForm({
 
       <section className="drawer-section" aria-labelledby="mobility-heading">
         <div className="section-heading">
-          <div><p className="eyebrow">Care needs</p><h3 id="mobility-heading">Mobility and equipment</h3></div>
+          <div>
+            <p className="eyebrow">Care needs</p>
+            <h3 id="mobility-heading">Mobility and equipment</h3>
+          </div>
         </div>
         <div className="registry-form-grid">
           <label className="checkbox-field">
-            <input type="checkbox" checked={form.wheelchair_required} onChange={(event) => setField("wheelchair_required", event.target.checked)} />
+            <input
+              type="checkbox"
+              checked={form.wheelchair_required}
+              onChange={(event) =>
+                setField("wheelchair_required", event.target.checked)
+              }
+            />
             <span>Wheelchair required</span>
           </label>
           <label className="checkbox-field">
-            <input type="checkbox" checked={form.walking_frame_required} onChange={(event) => setField("walking_frame_required", event.target.checked)} />
+            <input
+              type="checkbox"
+              checked={form.walking_frame_required}
+              onChange={(event) =>
+                setField("walking_frame_required", event.target.checked)
+              }
+            />
             <span>Walking frame / stick required</span>
           </label>
           <label>
             <span>AIC-reported mobility status</span>
-            <select value={form.aic_mobility_status} onChange={(event) => setField("aic_mobility_status", event.target.value as MobilityStatus)}>
-              {MOBILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            <select
+              value={form.aic_mobility_status}
+              onChange={(event) =>
+                setField(
+                  "aic_mobility_status",
+                  event.target.value as MobilityStatus,
+                )
+              }
+            >
+              {MOBILITY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </label>
           <label>
             <span>LH-assessed mobility status</span>
-            <select value={form.lh_mobility_status} onChange={(event) => setField("lh_mobility_status", event.target.value as MobilityStatus)}>
-              {MOBILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            <select
+              value={form.lh_mobility_status}
+              onChange={(event) =>
+                setField(
+                  "lh_mobility_status",
+                  event.target.value as MobilityStatus,
+                )
+              }
+            >
+              {MOBILITY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </label>
         </div>
@@ -990,16 +1130,33 @@ function PatientForm({
 
       <section className="drawer-section" aria-labelledby="matching-heading">
         <div className="section-heading">
-          <div><p className="eyebrow">Escort matching inputs</p><h3 id="matching-heading">Escort and preferences</h3></div>
+          <div>
+            <p className="eyebrow">Escort matching inputs</p>
+            <h3 id="matching-heading">Escort and preferences</h3>
+          </div>
         </div>
         <div className="registry-form-grid">
           <label className="checkbox-field">
-            <input type="checkbox" checked={form.escort_required} onChange={(event) => setField("escort_required", event.target.checked)} />
+            <input
+              type="checkbox"
+              checked={form.escort_required}
+              onChange={(event) =>
+                setField("escort_required", event.target.checked)
+              }
+            />
             <span>Escort required</span>
           </label>
           <label>
             <span>Escort gender preference</span>
-            <select value={form.gender_preference} onChange={(event) => setField("gender_preference", event.target.value as FormState["gender_preference"])}>
+            <select
+              value={form.gender_preference}
+              onChange={(event) =>
+                setField(
+                  "gender_preference",
+                  event.target.value as FormState["gender_preference"],
+                )
+              }
+            >
               <option value="">No preference</option>
               <option value="F">Female</option>
               <option value="M">Male</option>
@@ -1007,66 +1164,159 @@ function PatientForm({
           </label>
           <label>
             <span>Dialect</span>
-            <input value={form.dialect} onChange={(event) => setField("dialect", event.target.value)} maxLength={100} placeholder="e.g. Hokkien" />
+            <input
+              value={form.dialect}
+              onChange={(event) => setField("dialect", event.target.value)}
+              maxLength={100}
+              placeholder="e.g. Hokkien"
+            />
           </label>
           <label>
             <span>Weight (kg)</span>
-            <input type="number" min="0.01" max="999.99" step="0.01" value={form.weight_kg} onChange={(event) => setField("weight_kg", event.target.value)} placeholder="Optional" />
+            <input
+              type="number"
+              min="0.01"
+              max="999.99"
+              step="0.01"
+              value={form.weight_kg}
+              onChange={(event) => setField("weight_kg", event.target.value)}
+              placeholder="Optional"
+            />
           </label>
         </div>
       </section>
 
       <section className="drawer-section" aria-labelledby="agreement-heading">
         <div className="section-heading">
-          <div><p className="eyebrow">Certification and funding</p><h3 id="agreement-heading">NMTS and service agreements</h3></div>
+          <div>
+            <p className="eyebrow">Certification and funding</p>
+            <h3 id="agreement-heading">NMTS and service agreements</h3>
+          </div>
         </div>
         <div className="registry-form-grid">
           <label>
             <span>NMTS effective date</span>
-            <input type="date" value={form.nmts_effective_date} onChange={(event) => setField("nmts_effective_date", event.target.value)} />
+            <input
+              type="date"
+              value={form.nmts_effective_date}
+              onChange={(event) =>
+                setField("nmts_effective_date", event.target.value)
+              }
+            />
           </label>
           <label>
             <span>NMTS expiry date</span>
-            <input type="date" value={form.nmts_expired_date} onChange={(event) => setField("nmts_expired_date", event.target.value)} />
+            <input
+              type="date"
+              value={form.nmts_expired_date}
+              onChange={(event) =>
+                setField("nmts_expired_date", event.target.value)
+              }
+            />
           </label>
           <label>
             <span>LH service agreement</span>
-            <select value={form.lh_service_agreement} onChange={(event) => setField("lh_service_agreement", event.target.value as FormState["lh_service_agreement"])}>
+            <select
+              value={form.lh_service_agreement}
+              onChange={(event) =>
+                setField(
+                  "lh_service_agreement",
+                  event.target.value as FormState["lh_service_agreement"],
+                )
+              }
+            >
               <option value="">Not recorded</option>
-              {AGREEMENT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              {AGREEMENT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </label>
           <label>
             <span>SW service agreement</span>
-            <select value={form.sw_service_agreement} onChange={(event) => setField("sw_service_agreement", event.target.value as FormState["sw_service_agreement"])}>
+            <select
+              value={form.sw_service_agreement}
+              onChange={(event) =>
+                setField(
+                  "sw_service_agreement",
+                  event.target.value as FormState["sw_service_agreement"],
+                )
+              }
+            >
               <option value="">Not recorded</option>
-              {AGREEMENT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              {AGREEMENT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </label>
           <label>
             <span>NMTS subsidy (%)</span>
-            <input type="number" min="0" max="100" step="1" value={form.nmtr_percentage} onChange={(event) => setField("nmtr_percentage", event.target.value)} placeholder="e.g. 95" />
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              value={form.nmtr_percentage}
+              onChange={(event) =>
+                setField("nmtr_percentage", event.target.value)
+              }
+              placeholder="e.g. 95"
+            />
           </label>
           <label>
             <span>Co-payment ($)</span>
-            <input type="number" min="0" step="0.01" value={form.co_payment} onChange={(event) => setField("co_payment", event.target.value)} placeholder="Optional" />
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.co_payment}
+              onChange={(event) => setField("co_payment", event.target.value)}
+              placeholder="Optional"
+            />
           </label>
           <label>
             <span>Date of entry</span>
-            <input type="date" value={form.date_of_entry} onChange={(event) => setField("date_of_entry", event.target.value)} />
+            <input
+              type="date"
+              value={form.date_of_entry}
+              onChange={(event) =>
+                setField("date_of_entry", event.target.value)
+              }
+            />
           </label>
           <label>
             <span>Action / updated date note</span>
-            <input value={form.action_updated_date} onChange={(event) => setField("action_updated_date", event.target.value)} maxLength={200} />
+            <input
+              value={form.action_updated_date}
+              onChange={(event) =>
+                setField("action_updated_date", event.target.value)
+              }
+              maxLength={200}
+            />
           </label>
         </div>
       </section>
 
       <section className="drawer-section" style={{ borderBottom: 0 }}>
-        {saveError && <p className="inline-message error" role="alert">{saveError}</p>}
+        {saveError && (
+          <p className="inline-message error" role="alert">
+            {saveError}
+          </p>
+        )}
         <div className="form-actions" style={{ marginTop: saveError ? 16 : 0 }}>
-          <button type="submit" className="primary-button" disabled={saveState === "loading"}>
-            {saveState === "loading" ? "Saving…" : patientId ? "Save changes" : "Add patient"}
+          <button
+            type="submit"
+            className="primary-button"
+            disabled={saveState === "loading"}
+          >
+            {saveState === "loading"
+              ? "Saving…"
+              : patientId
+                ? "Save changes"
+                : "Add patient"}
           </button>
         </div>
       </section>
@@ -1074,7 +1324,13 @@ function PatientForm({
   );
 }
 
-function ImportModal({ onClose, onImported }: { onClose: () => void; onImported: () => void }) {
+function ImportModal({
+  onClose,
+  onImported,
+}: {
+  onClose: () => void;
+  onImported: () => void;
+}) {
   const [file, setFile] = useState<File | null>(null);
   const [state, setState] = useState<LoadState>("idle");
   const [error, setError] = useState("");
@@ -1110,24 +1366,47 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
   }
 
   return (
-    <div className="modal-overlay" onClick={(event) => event.target === event.currentTarget && onClose()}>
-      <div className="modal-dialog" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="import-title">
+    <div
+      className="modal-overlay"
+      onClick={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <div
+        className="modal-dialog"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="import-title"
+      >
         {summary ? (
           <div role="status">
-            <span className="confirmation-icon"><CheckCircle2 size={30} aria-hidden="true" /></span>
+            <span className="confirmation-icon">
+              <CheckCircle2 size={30} aria-hidden="true" />
+            </span>
             <h2 id="import-title">Import complete</h2>
             <p>
-              Imported {summary.imported_count} patient{summary.imported_count === 1 ? "" : "s"}
-              {summary.skipped_count > 0 ? ` (${summary.skipped_count} row${summary.skipped_count === 1 ? "" : "s"} skipped for missing a name).` : "."}
+              Imported {summary.imported_count} patient
+              {summary.imported_count === 1 ? "" : "s"}
+              {summary.skipped_count > 0
+                ? ` (${summary.skipped_count} row${summary.skipped_count === 1 ? "" : "s"} skipped for missing a name).`
+                : "."}
             </p>
             <div className="modal-actions">
-              <button type="button" className="primary-button" onClick={onClose}>Done</button>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={onClose}
+              >
+                Done
+              </button>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
             <h2 id="import-title">Import Excel</h2>
-            <p>Upload the LH master data workbook (.xlsx) to add or update many patients at once.</p>
+            <p>
+              Upload the LH master data workbook (.xlsx) to add or update many
+              patients at once.
+            </p>
             <label className="file-field">
               <span>Excel file</span>
               <input
@@ -1138,13 +1417,28 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
             </label>
             {state === "error" && (
               <p className="inline-message error" role="alert">
-                <AlertCircle size={16} aria-hidden="true" style={{ verticalAlign: "-2px", marginRight: 6 }} />
+                <AlertCircle
+                  size={16}
+                  aria-hidden="true"
+                  style={{ verticalAlign: "-2px", marginRight: 6 }}
+                />
                 {error}
               </p>
             )}
             <div className="modal-actions">
-              <button type="button" className="secondary-button" onClick={onClose} disabled={state === "loading"}>Cancel</button>
-              <button type="submit" className="primary-button" disabled={state === "loading"}>
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={onClose}
+                disabled={state === "loading"}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="primary-button"
+                disabled={state === "loading"}
+              >
                 {state === "loading" ? "Importing…" : "Import"}
               </button>
             </div>
@@ -1169,11 +1463,24 @@ function MessageState({
   onAction?: () => void;
 }) {
   return (
-    <div className={`message-state ${kind}`} role={kind === "error" ? "alert" : "status"}>
-      {kind === "success" ? <CheckCircle2 size={28} aria-hidden="true" /> : kind === "error" ? <AlertCircle size={28} aria-hidden="true" /> : <Search size={28} aria-hidden="true" />}
+    <div
+      className={`message-state ${kind}`}
+      role={kind === "error" ? "alert" : "status"}
+    >
+      {kind === "success" ? (
+        <CheckCircle2 size={28} aria-hidden="true" />
+      ) : kind === "error" ? (
+        <AlertCircle size={28} aria-hidden="true" />
+      ) : (
+        <Search size={28} aria-hidden="true" />
+      )}
       <strong>{title}</strong>
       <p>{message}</p>
-      {actionLabel && onAction && <button type="button" className="secondary-button" onClick={onAction}>{actionLabel}</button>}
+      {actionLabel && onAction && (
+        <button type="button" className="secondary-button" onClick={onAction}>
+          {actionLabel}
+        </button>
+      )}
     </div>
   );
 }
