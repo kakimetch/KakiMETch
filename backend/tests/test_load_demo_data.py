@@ -1,6 +1,10 @@
 from datetime import date
 
-from scripts.load_demo_data import expand_available_days, mobility_from_equipment, parse_excel_date
+from scripts.load_demo_data import (
+    expand_available_days,
+    mobility_from_equipment,
+    parse_excel_date,
+)
 
 
 def test_expand_available_days_supports_ranges_and_slashes():

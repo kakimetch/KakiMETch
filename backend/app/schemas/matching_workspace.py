@@ -4,7 +4,6 @@ from datetime import date, time
 
 from pydantic import BaseModel, Field, field_validator
 
-
 GenderPreference = Literal["M", "F"]
 WeightKg = Annotated[float, Field(gt=0, le=999.99)]
 

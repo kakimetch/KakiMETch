@@ -57,20 +57,22 @@ def test_matching_queue_selects_only_safe_matching_fields(monkeypatch):
     elderly_id = uuid4()
     cursor = install_fake_connection(
         monkeypatch,
-        [[
-            {
-                "trip_id": trip_id,
-                "elderly_id": elderly_id,
-                "elderly_name": "Mdm Lim Siew Hoon",
-                "appt_date": date(2026, 9, 8),
-                "appt_time": time(10, 0),
-                "destination": "Jurong Community Hospital",
-                "dialect": "Hokkien",
-                "weight_kg": 62.5,
-                "gender_preference": "F",
-                "wheelchair_required": True,
-            }
-        ]],
+        [
+            [
+                {
+                    "trip_id": trip_id,
+                    "elderly_id": elderly_id,
+                    "elderly_name": "Mdm Lim Siew Hoon",
+                    "appt_date": date(2026, 9, 8),
+                    "appt_time": time(10, 0),
+                    "destination": "Jurong Community Hospital",
+                    "dialect": "Hokkien",
+                    "weight_kg": 62.5,
+                    "gender_preference": "F",
+                    "wheelchair_required": True,
+                }
+            ]
+        ],
     )
 
     queue = matching_workspace_service.get_matching_queue()
@@ -87,12 +89,14 @@ def test_matching_profile_update_is_limited_to_matching_fields(monkeypatch):
     elderly_id = uuid4()
     cursor = install_fake_connection(
         monkeypatch,
-        [{
-            "elderly_id": elderly_id,
-            "dialect": "Hokkien",
-            "weight_kg": 62.5,
-            "gender_preference": "F",
-        }],
+        [
+            {
+                "elderly_id": elderly_id,
+                "dialect": "Hokkien",
+                "weight_kg": 62.5,
+                "gender_preference": "F",
+            }
+        ],
     )
 
     profile = matching_workspace_service.update_matching_profile(
@@ -125,16 +129,18 @@ def test_escort_options_explain_every_hard_filter_issue(monkeypatch):
                 "status": "accepted",
                 "wheelchair_required": True,
             },
-            [{
-                "id": escort_id,
-                "name": "Mei Ling",
-                "gender": "F",
-                "dialects": ["Hokkien"],
-                "available_days": ["Mon"],
-                "available_timeslot": "9am-1pm",
-                "wheelchair_handling_capable": False,
-                "has_conflict": True,
-            }],
+            [
+                {
+                    "id": escort_id,
+                    "name": "Mei Ling",
+                    "gender": "F",
+                    "dialects": ["Hokkien"],
+                    "available_days": ["Mon"],
+                    "available_timeslot": "9am-1pm",
+                    "wheelchair_handling_capable": False,
+                    "has_conflict": True,
+                }
+            ],
         ],
     )
 

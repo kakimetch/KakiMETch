@@ -2,7 +2,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
 
-from app.schemas.trip import ConfirmEscortRequest, TripCancellation, TripConfirmation, TripCreate, TripCreated
+from app.schemas.trip import (
+    ConfirmEscortRequest,
+    TripCancellation,
+    TripConfirmation,
+    TripCreate,
+    TripCreated,
+)
 from app.services.scheduling_service import (
     AssignmentOverrideRequiredError,
     ConfirmationNotAllowedError,
@@ -18,6 +24,7 @@ from app.services.trip_service import (
 
 router = APIRouter(prefix="/trips", tags=["trips"])
 
+
 @router.post("", response_model=TripCreated, status_code=status.HTTP_201_CREATED)
 def create_trip_endpoint(request: TripCreate) -> TripCreated:
     try:
@@ -27,6 +34,7 @@ def create_trip_endpoint(request: TripCreate) -> TripCreated:
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Patient not found.",
         ) from error
+
 
 @router.post("/{trip_id}/confirm-escort", response_model=TripConfirmation)
 def confirm_escort_endpoint(

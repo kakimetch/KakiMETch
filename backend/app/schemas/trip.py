@@ -6,6 +6,7 @@ from pydantic import BaseModel, model_validator
 
 from app.schemas.matching_workspace import GenderPreference
 
+
 class TripCreate(BaseModel):
     elderly_id: UUID
     appt_date: date
@@ -21,6 +22,7 @@ class TripCreated(BaseModel):
     destination: str
     status: Literal["pending"]
 
+
 class ConfirmEscortRequest(BaseModel):
     escort_id: UUID
     assignment_override: bool = False
@@ -31,7 +33,9 @@ class ConfirmEscortRequest(BaseModel):
         if self.assignment_override and not (
             self.assignment_override_reason and self.assignment_override_reason.strip()
         ):
-            raise ValueError("Override reason is required when assignment_override is true.")
+            raise ValueError(
+                "Override reason is required when assignment_override is true."
+            )
         return self
 
 
@@ -60,5 +64,3 @@ class ScheduledTrip(BaseModel):
 class TripCancellation(BaseModel):
     trip_id: UUID
     status: Literal["accepted"]
-
-

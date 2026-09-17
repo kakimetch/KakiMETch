@@ -6,8 +6,7 @@ def prepare_matching_demo() -> tuple[int, int]:
     """Assess pending escort-required demo trips so the matching queue is usable."""
     with get_connection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
+            cursor.execute("""
                 select trips.id
                 from public.trips
                 join public.elderly_clients
@@ -15,8 +14,7 @@ def prepare_matching_demo() -> tuple[int, int]:
                 where trips.status = 'pending'
                   and elderly_clients.escort_required = true
                 order by trips.appt_date, trips.appt_time
-                """
-            )
+                """)
             trip_ids = [row["id"] for row in cursor.fetchall()]
 
     accepted = 0

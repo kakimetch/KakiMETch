@@ -6,7 +6,9 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.schemas.matching_workspace import GenderPreference
 
-MobilityStatus = Literal["ambulant", "wheelchair_user", "walking_frame_user", "bed_bound", "unknown"]
+MobilityStatus = Literal[
+    "ambulant", "wheelchair_user", "walking_frame_user", "bed_bound", "unknown"
+]
 ServiceAgreementStatus = Literal["Y", "N", "Pending"]
 
 

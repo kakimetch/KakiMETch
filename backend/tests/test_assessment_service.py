@@ -2,7 +2,6 @@ from datetime import date
 
 from app.services.assessment_service import assess_client
 
-
 VALID_CLIENT = {
     "aic_mobility_status": "wheelchair_user",
     "lh_mobility_status": "wheelchair_user",
