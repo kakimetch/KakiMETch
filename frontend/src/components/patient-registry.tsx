@@ -17,7 +17,9 @@ import {
   FileSpreadsheet,
   IdCard,
   MapPin,
+  RotateCcw,
   Search,
+  Trash2,
   UserPlus,
   X,
 } from "lucide-react";
@@ -39,9 +41,12 @@ import {
   PatientWrite,
   ServiceAgreementStatus,
   createPatient,
+  deletePatient,
+  getDeletedPatients,
   getPatient,
   getPatients,
   importPatients,
+  restorePatient,
   updatePatient,
   createAppointment,
   assessAppointment,
@@ -50,7 +55,10 @@ import {
 } from "@/lib/api";
 
 type LoadState = "idle" | "loading" | "success" | "error";
-type DrawerMode = { kind: "add" } | { kind: "edit"; patientId: string };
+type RegistryView = "active" | "deleted";
+type DrawerMode =
+  | { kind: "add" }
+  | { kind: "edit"; patientId: string; view: RegistryView };
 
 const MOBILITY_OPTIONS: { value: MobilityStatus; label: string }[] = [
   { value: "unknown", label: "Not yet assessed" },
@@ -74,11 +82,12 @@ function friendlyError(error: unknown) {
 
 function formatDate(value: string | null) {
   if (!value) return "No visits recorded";
+  const dateValue = value.includes("T") ? value : `${value}T00:00:00`;
   return new Intl.DateTimeFormat("en-SG", {
     day: "numeric",
     month: "short",
     year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
+  }).format(new Date(dateValue));
 }
 
 function formatSubsidy(value: number | null) {
@@ -86,11 +95,21 @@ function formatSubsidy(value: number | null) {
   return `${Math.round(value * 100)}% NMTS subsidy`;
 }
 
+export function patientDeletePhrase(name: string) {
+  const slug = name
+    .trim()
+    .toLocaleLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `${slug}-delete`;
+}
+
 export function PatientRegistry() {
   const [patients, setPatients] = useState<PatientSummary[]>([]);
   const [listState, setListState] = useState<LoadState>("loading");
   const [listError, setListError] = useState("");
   const [search, setSearch] = useState("");
+  const [registryView, setRegistryView] = useState<RegistryView>("active");
   const [drawerMode, setDrawerMode] = useState<DrawerMode | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const openerRef = useRef<HTMLElement | null>(null);
@@ -99,13 +118,17 @@ export function PatientRegistry() {
     setListState("loading");
     setListError("");
     try {
-      setPatients(await getPatients());
+      setPatients(
+        registryView === "deleted"
+          ? await getDeletedPatients()
+          : await getPatients(),
+      );
       setListState("success");
     } catch (error) {
       setListError(friendlyError(error));
       setListState("error");
     }
-  }, []);
+  }, [registryView]);
 
   useEffect(() => {
     // Fetching the roster is the synchronization this effect owns.
@@ -126,7 +149,7 @@ export function PatientRegistry() {
 
   function openPatient(patientId: string) {
     openerRef.current = document.activeElement as HTMLElement;
-    setDrawerMode({ kind: "edit", patientId });
+    setDrawerMode({ kind: "edit", patientId, view: registryView });
   }
 
   function openAdd() {
@@ -176,7 +199,8 @@ export function PatientRegistry() {
             className="patient-count"
             aria-label={`${patients.length} patients in the registry`}
           >
-            {patients.length} patients
+            {patients.length}{" "}
+            {registryView === "deleted" ? "deleted" : "active"} patients
           </span>
         </div>
 
@@ -194,6 +218,28 @@ export function PatientRegistry() {
             />
           </label>
           <div className="registry-actions">
+            <div
+              className="registry-view-toggle"
+              role="tablist"
+              aria-label="Registry view"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={registryView === "active"}
+                onClick={() => setRegistryView("active")}
+              >
+                Active
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={registryView === "deleted"}
+                onClick={() => setRegistryView("deleted")}
+              >
+                Deleted
+              </button>
+            </div>
             <button
               type="button"
               className="secondary-button"
@@ -222,7 +268,11 @@ export function PatientRegistry() {
             <MessageState
               kind="neutral"
               title="No patients yet"
-              message="Add a patient manually or import the LH master data Excel file to get started."
+              message={
+                registryView === "deleted"
+                  ? "Soft-deleted patients will appear here."
+                  : "Add a patient manually or import the LH master data Excel file to get started."
+              }
             />
           )}
           {listState === "success" &&
@@ -262,21 +312,34 @@ export function PatientRegistry() {
                     </span>
                     <span className="module-detail">
                       <CalendarDays size={19} aria-hidden="true" />
-                      <span>Last visit: {formatDate(patient.last_visit)}</span>
+                      <span>
+                        {registryView === "deleted"
+                          ? `Deleted: ${formatDate(patient.deleted_at)}`
+                          : `Last visit: ${formatDate(patient.last_visit)}`}
+                      </span>
                     </span>
                   </div>
                   <span className="registry-badges">
                     <span className="registry-badge">
                       {formatSubsidy(patient.nmtr_percentage)}
                     </span>
-                    {patient.escort_required && (
-                      <span className="registry-badge escort">
-                        Escort required
+                    {registryView === "deleted" ? (
+                      <span className="registry-badge deleted">
+                        Soft deleted
                       </span>
+                    ) : (
+                      patient.escort_required && (
+                        <span className="registry-badge escort">
+                          Escort required
+                        </span>
+                      )
                     )}
                   </span>
                   <span className="module-open">
-                    View biodata <ChevronRight size={19} aria-hidden="true" />
+                    {registryView === "deleted"
+                      ? "View deleted record"
+                      : "View biodata"}{" "}
+                    <ChevronRight size={19} aria-hidden="true" />
                   </span>
                 </button>
               ))}
@@ -436,7 +499,9 @@ function PatientDrawer({
 
       {mode.kind === "edit" && loadState === "success" && detail && (
         <>
-          {!appointmentOpen ? (
+          {mode.view === "deleted" ? (
+            <DeletedPatientView patient={detail} onRestored={onSaved} />
+          ) : !appointmentOpen ? (
             <>
               <button
                 type="button"
@@ -467,6 +532,85 @@ function PatientDrawer({
     </aside>
   );
 }
+
+function DeletedPatientView({
+  patient,
+  onRestored,
+}: {
+  patient: PatientDetail;
+  onRestored: () => void;
+}) {
+  const [state, setState] = useState<LoadState>("idle");
+  const [error, setError] = useState("");
+
+  async function handleRestore() {
+    setState("loading");
+    setError("");
+    try {
+      await restorePatient(patient.id);
+      onRestored();
+    } catch (restoreError) {
+      setState("error");
+      setError(friendlyError(restoreError));
+    }
+  }
+
+  return (
+    <div className="drawer-content">
+      <section className="drawer-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Deleted record</p>
+            <h3>{patient.name}</h3>
+          </div>
+        </div>
+        <dl className="deleted-detail-list">
+          <div>
+            <dt>Deleted</dt>
+            <dd>{formatDate(patient.deleted_at)}</dd>
+          </div>
+          <div>
+            <dt>NRIC</dt>
+            <dd>{patient.nric ?? "Not recorded"}</dd>
+          </div>
+          <div>
+            <dt>Postal code</dt>
+            <dd>{patient.postal_code ?? "Not recorded"}</dd>
+          </div>
+          <div>
+            <dt>Contact</dt>
+            <dd>{patient.contact_no ?? "Not recorded"}</dd>
+          </div>
+        </dl>
+      </section>
+      <section className="drawer-section restore-zone">
+        <div>
+          <p className="eyebrow">Recover patient</p>
+          <h3>Restore to active registry</h3>
+          <p>
+            This makes the patient visible again in registry, matching and
+            scheduling workflows.
+          </p>
+        </div>
+        {error && (
+          <p className="inline-message error" role="alert">
+            {error}
+          </p>
+        )}
+        <button
+          type="button"
+          className="primary-button"
+          onClick={handleRestore}
+          disabled={state === "loading"}
+        >
+          <RotateCcw size={18} aria-hidden="true" />
+          {state === "loading" ? "Restoring..." : "Restore patient"}
+        </button>
+      </section>
+    </div>
+  );
+}
+
 function CreateAppointmentForm({
   patient,
   onCancel,
@@ -868,6 +1012,7 @@ function PatientForm({
   );
   const [saveState, setSaveState] = useState<LoadState>("idle");
   const [saveError, setSaveError] = useState("");
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -899,7 +1044,8 @@ function PatientForm({
   }
 
   return (
-    <form className="drawer-content" onSubmit={handleSubmit}>
+    <>
+      <form className="drawer-content" onSubmit={handleSubmit}>
       <section className="drawer-section" aria-labelledby="identity-heading">
         <div className="section-heading">
           <div>
@@ -1320,7 +1466,128 @@ function PatientForm({
           </button>
         </div>
       </section>
-    </form>
+
+      {patientId && initial && (
+        <section className="drawer-section danger-zone">
+          <div>
+            <p className="eyebrow">Remove patient</p>
+            <h3>Delete patient record</h3>
+            <p>
+              This hides the patient from active registry and matching views,
+              while keeping the record for audit history.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="secondary-button danger-button"
+            onClick={() => setDeleteOpen(true)}
+          >
+            <Trash2 size={18} aria-hidden="true" />
+            Delete patient
+          </button>
+        </section>
+      )}
+
+      </form>
+
+      {patientId && initial && deleteOpen && (
+        <DeletePatientModal
+          patient={initial}
+          onClose={() => setDeleteOpen(false)}
+          onDeleted={onSaved}
+        />
+      )}
+    </>
+  );
+}
+
+function DeletePatientModal({
+  patient,
+  onClose,
+  onDeleted,
+}: {
+  patient: PatientDetail;
+  onClose: () => void;
+  onDeleted: () => void;
+}) {
+  const phrase = patientDeletePhrase(patient.name);
+  const [confirmation, setConfirmation] = useState("");
+  const [state, setState] = useState<LoadState>("idle");
+  const [error, setError] = useState("");
+  const canDelete = confirmation.trim().toLocaleLowerCase() === phrase;
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  async function handleDelete() {
+    setState("loading");
+    setError("");
+    try {
+      await deletePatient(patient.id);
+      onDeleted();
+    } catch (deleteError) {
+      setState("error");
+      setError(friendlyError(deleteError));
+    }
+  }
+
+  return (
+    <div
+      className="modal-overlay"
+      onClick={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <div
+        className="modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-patient-title"
+      >
+        <h2 id="delete-patient-title">Delete {patient.name}</h2>
+        <p className="delete-warning">
+          <strong>WARNING</strong> This action cannot be undone. The patient
+          will be removed from active registry and matching views; to use this
+          patient again, you will need to add a new patient record.
+        </p>
+        <label className="delete-confirm-field">
+          <span>
+            Type <strong>{phrase}</strong> to confirm.
+          </span>
+          <input
+            value={confirmation}
+            onChange={(event) => setConfirmation(event.target.value)}
+            autoFocus
+          />
+        </label>
+        {state === "error" && (
+          <p className="inline-message error" role="alert">
+            {error}
+          </p>
+        )}
+        <div className="modal-actions">
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={onClose}
+            disabled={state === "loading"}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="secondary-button danger-button"
+            onClick={handleDelete}
+            disabled={!canDelete || state === "loading"}
+          >
+            {state === "loading" ? "Deleting..." : "Delete patient"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
