@@ -1,5 +1,8 @@
 from datetime import date, time
 
+from uuid import uuid4
+
+from app.services import matching_service
 from app.services.matching_service import rank_escorts
 
 CLIENT = {
@@ -89,3 +92,39 @@ def test_ranking_returns_a_warning_when_no_viable_escort_exists():
     assert result.warning == (
         "No viable escort is available. An admin can assign an escort with an override reason."
     )
+
+
+def test_escort_suggestions_rank_the_loaded_roster(fake_db):
+    escort_id = uuid4()
+    fake_db(
+        matching_service,
+        [
+            {
+                "escort_id": None,
+                "appt_date": APPOINTMENT_DATE,
+                "appt_time": APPOINTMENT_TIME,
+                "status": "accepted",
+                "dialect": "Hokkien",
+                "gender_preference": None,
+                "wheelchair_required": False,
+                "escort_required": True,
+            },
+            [
+                {
+                    "id": escort_id,
+                    "name": "Mei Ling",
+                    "gender": "F",
+                    "dialects": ["Hokkien"],
+                    "available_days": ["Tue"],
+                    "available_timeslot": "9am-1pm",
+                    "wheelchair_handling_capable": False,
+                    "has_conflict": False,
+                }
+            ],
+        ],
+    )
+
+    result = matching_service.get_escort_suggestions(uuid4())
+
+    assert [s.escort_id for s in result.suggestions] == [str(escort_id)]
+    assert result.warning is None

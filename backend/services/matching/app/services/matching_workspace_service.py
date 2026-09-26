@@ -126,7 +126,6 @@ def get_escort_options(trip_id: UUID) -> list[EscortOption]:
                 )
                 if escort["id"] != trip["escort_id"]
             ]
-            escorts: list[Mapping[str, object]] = cursor.fetchall()
 
     options = [
         EscortOption(

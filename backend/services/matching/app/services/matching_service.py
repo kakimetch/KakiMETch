@@ -115,6 +115,5 @@ def get_escort_suggestions(trip_id: UUID, limit: int = 3) -> MatchResult:
                 )
                 if escort["id"] != trip["escort_id"]
             ]
-            escorts = cursor.fetchall()
 
     return rank_escorts(trip, trip["appt_date"], trip["appt_time"], escorts, limit)

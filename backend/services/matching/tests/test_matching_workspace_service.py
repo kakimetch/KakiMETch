@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from datetime import date, time
 from uuid import UUID, uuid4
 
@@ -6,57 +5,11 @@ from app.schemas.matching_workspace import MatchingProfileUpdate
 from app.services import matching_workspace_service
 
 
-class FakeCursor:
-    def __init__(self, responses):
-        self.responses = iter(responses)
-        self.current = None
-        self.executed = []
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *_args):
-        return False
-
-    def execute(self, query, params=None):
-        self.executed.append((query, params))
-        self.current = next(self.responses)
-
-    def fetchone(self):
-        return self.current
-
-    def fetchall(self):
-        return self.current
-
-
-class FakeConnection:
-    def __init__(self, cursor):
-        self.fake_cursor = cursor
-
-    def cursor(self):
-        return self.fake_cursor
-
-
-def install_fake_connection(monkeypatch, responses):
-    cursor = FakeCursor(responses)
-
-    @contextmanager
-    def fake_get_connection():
-        yield FakeConnection(cursor)
-
-    monkeypatch.setattr(
-        matching_workspace_service,
-        "get_connection",
-        fake_get_connection,
-    )
-    return cursor
-
-
-def test_matching_queue_selects_only_safe_matching_fields(monkeypatch):
+def test_matching_queue_selects_only_safe_matching_fields(fake_db):
     trip_id = uuid4()
     elderly_id = uuid4()
-    cursor = install_fake_connection(
-        monkeypatch,
+    cursor = fake_db(
+        matching_workspace_service,
         [
             [
                 {
@@ -85,10 +38,10 @@ def test_matching_queue_selects_only_safe_matching_fields(monkeypatch):
     assert "elderly_clients.escort_required = true" in query
 
 
-def test_matching_profile_update_is_limited_to_matching_fields(monkeypatch):
+def test_matching_profile_update_is_limited_to_matching_fields(fake_db):
     elderly_id = uuid4()
-    cursor = install_fake_connection(
-        monkeypatch,
+    cursor = fake_db(
+        matching_workspace_service,
         [
             {
                 "elderly_id": elderly_id,
@@ -116,11 +69,11 @@ def test_matching_profile_update_is_limited_to_matching_fields(monkeypatch):
     assert "nric" not in query
 
 
-def test_escort_options_explain_every_hard_filter_issue(monkeypatch):
+def test_escort_options_explain_every_hard_filter_issue(fake_db):
     trip_id = uuid4()
     escort_id = uuid4()
-    install_fake_connection(
-        monkeypatch,
+    fake_db(
+        matching_workspace_service,
         [
             {
                 "escort_id": None,
