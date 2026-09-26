@@ -2,7 +2,7 @@
 
 Current state of the system. Product scope and business rules are in [AGENTS.md](../AGENTS.md).
 
-![KakiMETch architecture](architecture.png)
+![KakiMETch high-level architecture](architecture.png)
 
 Source: [architecture.excalidraw](architecture.excalidraw) — open it at [excalidraw.com](https://excalidraw.com)
 (File → Open) or with the VS Code *Excalidraw* extension, and re-export `architecture.png` after editing.
