@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+if git grep --cached -n -E '^(<<<<<<<|=======|>>>>>>>)' -- .; then
+  cat >&2 <<'EOF'
+Commit blocked: staged files contain merge conflict markers.
+Resolve the conflict markers before committing.
+EOF
+  exit 1
+fi

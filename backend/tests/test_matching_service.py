@@ -2,7 +2,6 @@ from datetime import date, time
 
 from app.services.matching_service import rank_escorts
 
-
 CLIENT = {
     "dialect": "Hokkien",
     "gender_preference": "F",

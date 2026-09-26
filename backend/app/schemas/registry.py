@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
@@ -6,7 +6,9 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.schemas.matching_workspace import GenderPreference
 
-MobilityStatus = Literal["ambulant", "wheelchair_user", "walking_frame_user", "bed_bound", "unknown"]
+MobilityStatus = Literal[
+    "ambulant", "wheelchair_user", "walking_frame_user", "bed_bound", "unknown"
+]
 ServiceAgreementStatus = Literal["Y", "N", "Pending"]
 
 
@@ -18,6 +20,7 @@ class PatientSummary(BaseModel):
     nmtr_percentage: float | None
     escort_required: bool
     last_visit: date | None
+    deleted_at: datetime | None = None
 
 
 class PatientDetail(BaseModel):
@@ -53,6 +56,7 @@ class PatientDetail(BaseModel):
     aic_mobility_status: MobilityStatus
     lh_mobility_status: MobilityStatus
     last_visit: date | None
+    deleted_at: datetime | None = None
 
 
 class PatientWrite(BaseModel):

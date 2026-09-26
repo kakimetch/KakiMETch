@@ -27,8 +27,7 @@ def get_matching_queue() -> list[MatchingQueueItem]:
     """Return accepted, escort-required appointments without sensitive identifiers."""
     with get_connection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
+            cursor.execute("""
                 select
                     trips.id as trip_id,
                     elderly_clients.id as elderly_id,
@@ -45,9 +44,9 @@ def get_matching_queue() -> list[MatchingQueueItem]:
                     on elderly_clients.id = trips.elderly_id
                 where trips.status = 'accepted'
                   and elderly_clients.escort_required = true
+                  and elderly_clients.deleted_at is null
                 order by trips.appt_date, trips.appt_time, elderly_clients.name
-                """
-            )
+                """)
             rows: list[Mapping[str, object]] = cursor.fetchall()
 
     return [MatchingQueueItem.model_validate(row) for row in rows]
@@ -69,6 +68,7 @@ def update_matching_profile(
                     gender_preference = %s,
                     updated_at = now()
                 where id = %s
+                  and deleted_at is null
                 returning
                     id as elderly_id,
                     nullif(trim(dialect), '') as dialect,
@@ -106,6 +106,7 @@ def get_escort_options(trip_id: UUID) -> list[EscortOption]:
                 join public.elderly_clients
                     on elderly_clients.id = trips.elderly_id
                 where trips.id = %s
+                  and elderly_clients.deleted_at is null
                 """,
                 (trip_id,),
             )
@@ -156,9 +157,7 @@ def get_escort_options(trip_id: UUID) -> list[EscortOption]:
             dialects=list(escort["dialects"]),
             available_days=list(escort["available_days"]),
             available_timeslot=str(escort["available_timeslot"]),
-            wheelchair_handling_capable=bool(
-                escort["wheelchair_handling_capable"]
-            ),
+            wheelchair_handling_capable=bool(escort["wheelchair_handling_capable"]),
             issues=get_hard_filter_issues(
                 trip,
                 trip["appt_date"],
@@ -168,4 +167,6 @@ def get_escort_options(trip_id: UUID) -> list[EscortOption]:
         )
         for escort in escorts
     ]
-    return sorted(options, key=lambda option: (len(option.issues), option.name.casefold()))
+    return sorted(
+        options, key=lambda option: (len(option.issues), option.name.casefold())
+    )

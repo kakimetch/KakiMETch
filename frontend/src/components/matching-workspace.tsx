@@ -56,7 +56,10 @@ import {
 type LoadState = "idle" | "loading" | "success" | "error";
 type WorkspaceView = "unmatched" | "matched";
 
-type CaseTrip = MatchingQueueItem & { escort_id?: string; escort_name?: string };
+type CaseTrip = MatchingQueueItem & {
+  escort_id?: string;
+  escort_name?: string;
+};
 
 interface ConfirmationResult {
   trip: CaseTrip;
@@ -129,7 +132,9 @@ export function MatchingWorkspace() {
   const [activeView, setActiveView] = useState<WorkspaceView>("unmatched");
   const [search, setSearch] = useState("");
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
-  const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
+  const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(
+    null,
+  );
   const openerRef = useRef<HTMLElement | null>(null);
 
   const loadQueue = useCallback(async () => {
@@ -213,13 +218,17 @@ export function MatchingWorkspace() {
     );
     setScheduledTrips((current) =>
       current.map((trip) =>
-        trip.trip_id === updated.trip_id ? { ...trip, ...toQueueItem(updated) } : trip,
+        trip.trip_id === updated.trip_id
+          ? { ...trip, ...toQueueItem(updated) }
+          : trip,
       ),
     );
   }
 
   function completeMatch(result: ConfirmationResult) {
-    setQueue((current) => current.filter((trip) => trip.trip_id !== result.trip.trip_id));
+    setQueue((current) =>
+      current.filter((trip) => trip.trip_id !== result.trip.trip_id),
+    );
     setScheduledTrips((current) => [
       {
         ...toQueueItem(result.trip),
@@ -233,7 +242,9 @@ export function MatchingWorkspace() {
   }
 
   function cancelMatch(trip: CaseTrip) {
-    setScheduledTrips((current) => current.filter((item) => item.trip_id !== trip.trip_id));
+    setScheduledTrips((current) =>
+      current.filter((item) => item.trip_id !== trip.trip_id),
+    );
     setQueue((current) => [
       toQueueItem(trip),
       ...current.filter((item) => item.trip_id !== trip.trip_id),
@@ -255,7 +266,11 @@ export function MatchingWorkspace() {
       </header>
 
       <main className="overview" inert={Boolean(activeTrip)}>
-        <div className="workspace-tabs" role="tablist" aria-label="Escort matching views">
+        <div
+          className="workspace-tabs"
+          role="tablist"
+          aria-label="Escort matching views"
+        >
           <button
             type="button"
             role="tab"
@@ -280,114 +295,212 @@ export function MatchingWorkspace() {
 
         <div className="overview-heading">
           <div>
-            <p className="eyebrow">{activeView === "unmatched" ? "Accepted appointments" : "Confirmed assignments"}</p>
-            <h1>{activeView === "unmatched" ? "Patients needing an escort" : "Existing patient–escort matches"}</h1>
-            <p>{activeView === "unmatched" ? "Open one patient to review their needs and choose an escort." : "Review appointments that already have a confirmed escort."}</p>
+            <p className="eyebrow">
+              {activeView === "unmatched"
+                ? "Accepted appointments"
+                : "Confirmed assignments"}
+            </p>
+            <h1>
+              {activeView === "unmatched"
+                ? "Patients needing an escort"
+                : "Existing patient–escort matches"}
+            </h1>
+            <p>
+              {activeView === "unmatched"
+                ? "Open one patient to review their needs and choose an escort."
+                : "Review appointments that already have a confirmed escort."}
+            </p>
           </div>
-          <span className="patient-count" aria-label={activeView === "unmatched" ? `${queue.length} patients waiting` : `${scheduledTrips.length} existing matches`}>
-            {activeView === "unmatched" ? `${queue.length} waiting` : `${scheduledTrips.length} matched`}
+          <span
+            className="patient-count"
+            aria-label={
+              activeView === "unmatched"
+                ? `${queue.length} patients waiting`
+                : `${scheduledTrips.length} existing matches`
+            }
+          >
+            {activeView === "unmatched"
+              ? `${queue.length} waiting`
+              : `${scheduledTrips.length} matched`}
           </span>
         </div>
 
         <label className="search-field">
           <Search size={20} aria-hidden="true" />
-          <span className="sr-only">{activeView === "unmatched" ? "Search patients or destinations" : "Search patients, escorts or destinations"}</span>
+          <span className="sr-only">
+            {activeView === "unmatched"
+              ? "Search patients or destinations"
+              : "Search patients, escorts or destinations"}
+          </span>
           <input
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder={activeView === "unmatched" ? "Search by patient or destination" : "Search by patient, escort or destination"}
+            placeholder={
+              activeView === "unmatched"
+                ? "Search by patient or destination"
+                : "Search by patient, escort or destination"
+            }
           />
         </label>
 
-        {activeView === "unmatched" ? <div className="patient-area" id="unmatched-panel" role="tabpanel" aria-labelledby="unmatched-tab" aria-live="polite">
-          {queueState === "loading" && <PatientSkeleton />}
-          {queueState === "error" && (
-            <MessageState
-              kind="error"
-              title="Patients could not load"
-              message={queueError}
-              actionLabel="Try again"
-              onAction={() => void loadQueue()}
-            />
-          )}
-          {queueState === "success" && queue.length === 0 && (
-            <MessageState
-              kind="success"
-              title="All caught up"
-              message="There are no accepted appointments waiting for an escort."
-            />
-          )}
-          {queueState === "success" && queue.length > 0 && filteredQueue.length === 0 && (
-            <MessageState
-              kind="neutral"
-              title="No patient found"
-              message="Try a different name or destination."
-            />
-          )}
-          {filteredQueue.length > 0 && (
-            <div className="patient-grid">
-              {filteredQueue.map((trip) => (
-                <button
-                  type="button"
-                  className="patient-module"
-                  key={trip.trip_id}
-                  onClick={() => openTrip(trip.trip_id)}
-                  aria-haspopup="dialog"
-                >
-                  <span className="module-topline">
-                    <strong>{trip.elderly_name}</strong>
-                    {isOverdue(trip) && <span className="quiet-status overdue">Overdue</span>}
-                  </span>
-                  <span className="module-detail">
-                    <CalendarDays size={19} aria-hidden="true" />
-                    <span>{formatDate(trip.appt_date, true)} at {formatTime(trip.appt_time)}</span>
-                  </span>
-                  <span className="module-detail">
-                    <MapPin size={19} aria-hidden="true" />
-                    <span>{trip.destination}</span>
-                  </span>
-                  <span className="module-open">View matching details <ChevronRight size={19} aria-hidden="true" /></span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div> : <div className="patient-area" id="matched-panel" role="tabpanel" aria-labelledby="matched-tab" aria-live="polite">
-          {scheduleState === "loading" && <PatientSkeleton />}
-          {scheduleState === "error" && (
-            <MessageState kind="error" title="Existing matches could not load" message={scheduleError} actionLabel="Try again" onAction={() => void loadSchedule()} />
-          )}
-          {scheduleState === "success" && scheduledTrips.length === 0 && (
-            <MessageState kind="neutral" title="No existing matches yet" message="Confirmed patient–escort assignments will appear here." />
-          )}
-          {scheduleState === "success" && scheduledTrips.length > 0 && filteredSchedule.length === 0 && (
-            <MessageState kind="neutral" title="No match found" message="Try a different patient, escort or destination." />
-          )}
-          {filteredSchedule.length > 0 && (
-            <div className="patient-grid">
-              {filteredSchedule.map((trip) => (
-                <button
-                  type="button"
-                  className="existing-module patient-module"
-                  key={trip.trip_id}
-                  onClick={() => openTrip(trip.trip_id)}
-                  aria-haspopup="dialog"
-                >
-                  <span className="module-topline"><strong>{trip.elderly_name}</strong><span className="quiet-status matched">Matched</span></span>
-                  <span className="escort-assignment"><UserRound size={19} aria-hidden="true" /><span><small>Escort</small><strong>{trip.escort_name}</strong></span></span>
-                  <span className="module-detail"><CalendarDays size={19} aria-hidden="true" /><span>{formatDate(trip.appt_date, true)} at {formatTime(trip.appt_time)}</span></span>
-                  <span className="module-detail"><MapPin size={19} aria-hidden="true" /><span>{trip.destination}</span></span>
-                  <span className="module-open">View matching details <ChevronRight size={19} aria-hidden="true" /></span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>}
+        {activeView === "unmatched" ? (
+          <div
+            className="patient-area"
+            id="unmatched-panel"
+            role="tabpanel"
+            aria-labelledby="unmatched-tab"
+            aria-live="polite"
+          >
+            {queueState === "loading" && <PatientSkeleton />}
+            {queueState === "error" && (
+              <MessageState
+                kind="error"
+                title="Patients could not load"
+                message={queueError}
+                actionLabel="Try again"
+                onAction={() => void loadQueue()}
+              />
+            )}
+            {queueState === "success" && queue.length === 0 && (
+              <MessageState
+                kind="success"
+                title="All caught up"
+                message="There are no accepted appointments waiting for an escort."
+              />
+            )}
+            {queueState === "success" &&
+              queue.length > 0 &&
+              filteredQueue.length === 0 && (
+                <MessageState
+                  kind="neutral"
+                  title="No patient found"
+                  message="Try a different name or destination."
+                />
+              )}
+            {filteredQueue.length > 0 && (
+              <div className="patient-grid">
+                {filteredQueue.map((trip) => (
+                  <button
+                    type="button"
+                    className="patient-module"
+                    key={trip.trip_id}
+                    onClick={() => openTrip(trip.trip_id)}
+                    aria-haspopup="dialog"
+                  >
+                    <span className="module-topline">
+                      <strong>{trip.elderly_name}</strong>
+                      {isOverdue(trip) && (
+                        <span className="quiet-status overdue">Overdue</span>
+                      )}
+                    </span>
+                    <span className="module-detail">
+                      <CalendarDays size={19} aria-hidden="true" />
+                      <span>
+                        {formatDate(trip.appt_date, true)} at{" "}
+                        {formatTime(trip.appt_time)}
+                      </span>
+                    </span>
+                    <span className="module-detail">
+                      <MapPin size={19} aria-hidden="true" />
+                      <span>{trip.destination}</span>
+                    </span>
+                    <span className="module-open">
+                      View matching details{" "}
+                      <ChevronRight size={19} aria-hidden="true" />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            className="patient-area"
+            id="matched-panel"
+            role="tabpanel"
+            aria-labelledby="matched-tab"
+            aria-live="polite"
+          >
+            {scheduleState === "loading" && <PatientSkeleton />}
+            {scheduleState === "error" && (
+              <MessageState
+                kind="error"
+                title="Existing matches could not load"
+                message={scheduleError}
+                actionLabel="Try again"
+                onAction={() => void loadSchedule()}
+              />
+            )}
+            {scheduleState === "success" && scheduledTrips.length === 0 && (
+              <MessageState
+                kind="neutral"
+                title="No existing matches yet"
+                message="Confirmed patient–escort assignments will appear here."
+              />
+            )}
+            {scheduleState === "success" &&
+              scheduledTrips.length > 0 &&
+              filteredSchedule.length === 0 && (
+                <MessageState
+                  kind="neutral"
+                  title="No match found"
+                  message="Try a different patient, escort or destination."
+                />
+              )}
+            {filteredSchedule.length > 0 && (
+              <div className="patient-grid">
+                {filteredSchedule.map((trip) => (
+                  <button
+                    type="button"
+                    className="existing-module patient-module"
+                    key={trip.trip_id}
+                    onClick={() => openTrip(trip.trip_id)}
+                    aria-haspopup="dialog"
+                  >
+                    <span className="module-topline">
+                      <strong>{trip.elderly_name}</strong>
+                      <span className="quiet-status matched">Matched</span>
+                    </span>
+                    <span className="escort-assignment">
+                      <UserRound size={19} aria-hidden="true" />
+                      <span>
+                        <small>Escort</small>
+                        <strong>{trip.escort_name}</strong>
+                      </span>
+                    </span>
+                    <span className="module-detail">
+                      <CalendarDays size={19} aria-hidden="true" />
+                      <span>
+                        {formatDate(trip.appt_date, true)} at{" "}
+                        {formatTime(trip.appt_time)}
+                      </span>
+                    </span>
+                    <span className="module-detail">
+                      <MapPin size={19} aria-hidden="true" />
+                      <span>{trip.destination}</span>
+                    </span>
+                    <span className="module-open">
+                      View matching details{" "}
+                      <ChevronRight size={19} aria-hidden="true" />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {activeTrip && (
         <>
-          <button className="drawer-scrim" type="button" tabIndex={-1} onClick={closeDrawer} aria-label="Close patient details" />
+          <button
+            className="drawer-scrim"
+            type="button"
+            tabIndex={-1}
+            onClick={closeDrawer}
+            aria-label="Close patient details"
+          />
           <PatientDrawer
             trip={activeTrip}
             confirmation={confirmation}
@@ -454,17 +567,32 @@ function PatientDrawer({
       aria-labelledby="drawer-title"
     >
       <header className="drawer-header">
-        <button ref={closeRef} type="button" className="back-button" onClick={onClose}>
+        <button
+          ref={closeRef}
+          type="button"
+          className="back-button"
+          onClick={onClose}
+        >
           <ArrowLeft size={20} aria-hidden="true" /> All patients
         </button>
-        <button type="button" className="close-button" onClick={onClose} aria-label="Close patient details">
+        <button
+          type="button"
+          className="close-button"
+          onClick={onClose}
+          aria-label="Close patient details"
+        >
           <X size={22} aria-hidden="true" />
         </button>
       </header>
       {confirmation ? (
         <ConfirmationView result={confirmation} onClose={onClose} />
       ) : (
-        <MatchingCase trip={trip} onUpdate={onUpdate} onComplete={onComplete} onCancel={onCancel} />
+        <MatchingCase
+          trip={trip}
+          onUpdate={onUpdate}
+          onComplete={onComplete}
+          onCancel={onCancel}
+        />
       )}
     </aside>
   );
@@ -494,7 +622,9 @@ function MatchingCase({
   const [options, setOptions] = useState<EscortOption[]>([]);
   const [optionsState, setOptionsState] = useState<LoadState>("idle");
   const [optionsError, setOptionsError] = useState("");
-  const [selectedOverrideId, setSelectedOverrideId] = useState<string | null>(null);
+  const [selectedOverrideId, setSelectedOverrideId] = useState<string | null>(
+    null,
+  );
   const [overrideReason, setOverrideReason] = useState("");
   const [editing, setEditing] = useState(false);
   const [cancelState, setCancelState] = useState<LoadState>("idle");
@@ -504,9 +634,9 @@ function MatchingCase({
   const [profileNotice, setProfileNotice] = useState("");
   const [dialect, setDialect] = useState(trip.dialect ?? "");
   const [weight, setWeight] = useState(trip.weight_kg?.toString() ?? "");
-  const [genderPreference, setGenderPreference] = useState<GenderPreference | "">(
-    trip.gender_preference ?? "",
-  );
+  const [genderPreference, setGenderPreference] = useState<
+    GenderPreference | ""
+  >(trip.gender_preference ?? "");
 
   const loadSuggestions = useCallback(async () => {
     setSuggestionState("loading");
@@ -523,7 +653,8 @@ function MatchingCase({
       setSuggestions(result.suggestions);
       setWarning(result.warning);
       setSuggestionState("success");
-      if (result.suggestions.length === 0 && result.warning) setOverrideMode(true);
+      if (result.suggestions.length === 0 && result.warning)
+        setOverrideMode(true);
     } catch (error) {
       setSuggestionError(friendlyError(error));
       setSuggestionState("error");
@@ -560,9 +691,13 @@ function MatchingCase({
     const parsedWeight = weight.trim() ? Number(weight) : null;
     if (
       parsedWeight !== null &&
-      (!Number.isFinite(parsedWeight) || parsedWeight <= 0 || parsedWeight > 999.99)
+      (!Number.isFinite(parsedWeight) ||
+        parsedWeight <= 0 ||
+        parsedWeight > 999.99)
     ) {
-      setProfileError("Enter a weight between 0.01 kg and 999.99 kg, or leave it blank.");
+      setProfileError(
+        "Enter a weight between 0.01 kg and 999.99 kg, or leave it blank.",
+      );
       return;
     }
     setProfileState("loading");
@@ -589,19 +724,32 @@ function MatchingCase({
   }
 
   async function confirmStandard() {
-    const selected = suggestions.find((item) => item.escort_id === selectedEscortId);
+    const selected = suggestions.find(
+      (item) => item.escort_id === selectedEscortId,
+    );
     if (!selected) return;
     setConfirmState("loading");
     setConfirmError("");
     try {
       await confirmEscort(trip.trip_id, selected.escort_id);
-      onComplete({ trip, escortId: selected.escort_id, escortName: selected.name, override: false });
+      onComplete({
+        trip,
+        escortId: selected.escort_id,
+        escortName: selected.name,
+        override: false,
+      });
     } catch (error) {
-      if (error instanceof ApiError && error.status === 409 && error.issues.length > 0) {
+      if (
+        error instanceof ApiError &&
+        error.status === 409 &&
+        error.issues.length > 0
+      ) {
         setLateIssues(error.issues);
         setSelectedOverrideId(selected.escort_id);
         setOverrideMode(true);
-        setConfirmError("This escort's availability changed. Review the issue before overriding.");
+        setConfirmError(
+          "This escort's availability changed. Review the issue before overriding.",
+        );
       } else {
         setConfirmError(friendlyError(error));
       }
@@ -611,13 +759,24 @@ function MatchingCase({
 
   async function confirmOverride(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const selected = options.find((item) => item.escort_id === selectedOverrideId);
+    const selected = options.find(
+      (item) => item.escort_id === selectedOverrideId,
+    );
     if (!selected || !overrideReason.trim()) return;
     setConfirmState("loading");
     setConfirmError("");
     try {
-      await confirmEscort(trip.trip_id, selected.escort_id, overrideReason.trim());
-      onComplete({ trip, escortId: selected.escort_id, escortName: selected.name, override: true });
+      await confirmEscort(
+        trip.trip_id,
+        selected.escort_id,
+        overrideReason.trim(),
+      );
+      onComplete({
+        trip,
+        escortId: selected.escort_id,
+        escortName: selected.name,
+        override: true,
+      });
     } catch (error) {
       setConfirmState("error");
       setConfirmError(friendlyError(error));
@@ -636,20 +795,30 @@ function MatchingCase({
     }
   }
 
-  const selectedSuggestion = suggestions.find((item) => item.escort_id === selectedEscortId);
+  const selectedSuggestion = suggestions.find(
+    (item) => item.escort_id === selectedEscortId,
+  );
 
   return (
     <div className="drawer-content">
       <section className="patient-identity">
-        <span className="accepted-label"><Check size={15} aria-hidden="true" /> Accepted referral</span>
+        <span className="accepted-label">
+          <Check size={15} aria-hidden="true" /> Accepted referral
+        </span>
         <h2 id="drawer-title">{trip.elderly_name}</h2>
         <dl className="appointment-summary">
           <div>
-            <dt><CalendarDays size={18} aria-hidden="true" /> Appointment</dt>
-            <dd>{formatDate(trip.appt_date, true)} at {formatTime(trip.appt_time)}</dd>
+            <dt>
+              <CalendarDays size={18} aria-hidden="true" /> Appointment
+            </dt>
+            <dd>
+              {formatDate(trip.appt_date, true)} at {formatTime(trip.appt_time)}
+            </dd>
           </div>
           <div>
-            <dt><MapPin size={18} aria-hidden="true" /> Destination</dt>
+            <dt>
+              <MapPin size={18} aria-hidden="true" /> Destination
+            </dt>
             <dd>{trip.destination}</dd>
           </div>
         </dl>
@@ -657,30 +826,116 @@ function MatchingCase({
 
       <section className="drawer-section" aria-labelledby="needs-heading">
         <div className="section-heading">
-          <div><p className="eyebrow">Patient details</p><h3 id="needs-heading">Matching needs</h3></div>
+          <div>
+            <p className="eyebrow">Patient details</p>
+            <h3 id="needs-heading">Matching needs</h3>
+          </div>
           {!editing && (
-            <button type="button" className="text-button" onClick={() => setEditing(true)}>
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => setEditing(true)}
+            >
               <Pencil size={17} aria-hidden="true" /> Edit
             </button>
           )}
         </div>
         {editing ? (
           <form className="profile-form" onSubmit={saveProfile}>
-            <label><span>Dialect</span><input value={dialect} onChange={(event) => setDialect(event.target.value)} maxLength={100} placeholder="e.g. Hokkien" /></label>
-            <label><span>Weight (kg)</span><input type="number" min="0.01" max="999.99" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} placeholder="Optional" /></label>
-            <label><span>Escort gender preference</span><select value={genderPreference} onChange={(event) => setGenderPreference(event.target.value as GenderPreference | "")}><option value="">No preference</option><option value="F">Female</option><option value="M">Male</option></select></label>
-            {profileError && <p className="inline-message error" role="alert">{profileError}</p>}
-            <div className="form-actions"><button type="button" className="secondary-button" onClick={() => setEditing(false)}>Cancel</button><button type="submit" className="primary-button" disabled={profileState === "loading"}>{profileState === "loading" ? "Saving…" : "Save and refresh"}</button></div>
+            <label>
+              <span>Dialect</span>
+              <input
+                value={dialect}
+                onChange={(event) => setDialect(event.target.value)}
+                maxLength={100}
+                placeholder="e.g. Hokkien"
+              />
+            </label>
+            <label>
+              <span>Weight (kg)</span>
+              <input
+                type="number"
+                min="0.01"
+                max="999.99"
+                step="0.01"
+                value={weight}
+                onChange={(event) => setWeight(event.target.value)}
+                placeholder="Optional"
+              />
+            </label>
+            <label>
+              <span>Escort gender preference</span>
+              <select
+                value={genderPreference}
+                onChange={(event) =>
+                  setGenderPreference(
+                    event.target.value as GenderPreference | "",
+                  )
+                }
+              >
+                <option value="">No preference</option>
+                <option value="F">Female</option>
+                <option value="M">Male</option>
+              </select>
+            </label>
+            {profileError && (
+              <p className="inline-message error" role="alert">
+                {profileError}
+              </p>
+            )}
+            <div className="form-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => setEditing(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="primary-button"
+                disabled={profileState === "loading"}
+              >
+                {profileState === "loading" ? "Saving…" : "Save and refresh"}
+              </button>
+            </div>
           </form>
         ) : (
           <div className="needs-list">
-            <NeedRow icon={<Languages />} label="Dialect" value={trip.dialect || "Not recorded"} />
-            <NeedRow icon={<Accessibility />} label="Wheelchair handling" value={trip.wheelchair_required ? "Required" : "Not required"} />
-            <NeedRow icon={<UserRound />} label="Escort preference" value={trip.gender_preference === "F" ? "Female" : trip.gender_preference === "M" ? "Male" : "No preference"} />
-            <NeedRow icon={<Weight />} label="Weight" value={trip.weight_kg ? `${trip.weight_kg} kg` : "Not recorded"} note="Reference only; not used in ranking" />
+            <NeedRow
+              icon={<Languages />}
+              label="Dialect"
+              value={trip.dialect || "Not recorded"}
+            />
+            <NeedRow
+              icon={<Accessibility />}
+              label="Wheelchair handling"
+              value={trip.wheelchair_required ? "Required" : "Not required"}
+            />
+            <NeedRow
+              icon={<UserRound />}
+              label="Escort preference"
+              value={
+                trip.gender_preference === "F"
+                  ? "Female"
+                  : trip.gender_preference === "M"
+                    ? "Male"
+                    : "No preference"
+              }
+            />
+            <NeedRow
+              icon={<Weight />}
+              label="Weight"
+              value={trip.weight_kg ? `${trip.weight_kg} kg` : "Not recorded"}
+              note="Reference only; not used in ranking"
+            />
           </div>
         )}
-        {profileNotice && <p className="inline-message success" role="status">{profileNotice}</p>}
+        {profileNotice && (
+          <p className="inline-message success" role="status">
+            {profileNotice}
+          </p>
+        )}
       </section>
 
       {trip.escort_id && (
@@ -688,9 +943,16 @@ function MatchingCase({
           <div className="assigned-card">
             <span className="escort-assignment">
               <UserRound size={19} aria-hidden="true" />
-              <span><small>Currently assigned</small><strong id="assigned-heading">{trip.escort_name}</strong></span>
+              <span>
+                <small>Currently assigned</small>
+                <strong id="assigned-heading">{trip.escort_name}</strong>
+              </span>
             </span>
-            {cancelError && <p className="inline-message error" role="alert">{cancelError}</p>}
+            {cancelError && (
+              <p className="inline-message error" role="alert">
+                {cancelError}
+              </p>
+            )}
             <button
               type="button"
               className="secondary-button danger-button"
@@ -705,33 +967,111 @@ function MatchingCase({
 
       <section className="drawer-section" aria-labelledby="suggestions-heading">
         <div className="section-heading">
-          <div><p className="eyebrow">System suggests, you decide</p><h3 id="suggestions-heading">Escort suggestions</h3></div>
-          <button type="button" className="text-button" onClick={() => void loadSuggestions()} disabled={suggestionState === "loading"}><RefreshCw size={17} aria-hidden="true" /> Refresh</button>
+          <div>
+            <p className="eyebrow">System suggests, you decide</p>
+            <h3 id="suggestions-heading">Escort suggestions</h3>
+          </div>
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => void loadSuggestions()}
+            disabled={suggestionState === "loading"}
+          >
+            <RefreshCw size={17} aria-hidden="true" /> Refresh
+          </button>
         </div>
-        <p className="section-copy">Select one escort, then confirm the assignment separately.</p>
+        <p className="section-copy">
+          Select one escort, then confirm the assignment separately.
+        </p>
         {suggestionState === "loading" && <SuggestionSkeleton />}
-        {suggestionState === "error" && <MessageState kind="error" title="Suggestions could not load" message={suggestionError} actionLabel="Try again" onAction={() => void loadSuggestions()} />}
+        {suggestionState === "error" && (
+          <MessageState
+            kind="error"
+            title="Suggestions could not load"
+            message={suggestionError}
+            actionLabel="Try again"
+            onAction={() => void loadSuggestions()}
+          />
+        )}
         {suggestionState === "success" && suggestions.length > 0 && (
           <fieldset className="suggestion-list">
             <legend className="sr-only">Choose an escort</legend>
             {suggestions.map((suggestion, index) => (
-              <label className={`suggestion-row ${selectedEscortId === suggestion.escort_id ? "selected" : ""}`} key={suggestion.escort_id}>
-                <input type="radio" name="escort" checked={selectedEscortId === suggestion.escort_id} onChange={() => { setSelectedEscortId(suggestion.escort_id); setConfirmError(""); }} />
-                <span className="escort-copy"><span className="escort-name"><strong>{suggestion.name}</strong><span>{suggestion.gender === "F" ? "Female" : "Male"}</span>{index === 0 && <span className="top-choice">Top suggestion</span>}</span><span className="reason-lines">{suggestion.flairs.length ? suggestion.flairs.map((flair) => <span key={flair}><Check size={15} aria-hidden="true" />{flair}</span>) : <span><Check size={15} aria-hidden="true" />Available at this time</span>}</span></span>
+              <label
+                className={`suggestion-row ${selectedEscortId === suggestion.escort_id ? "selected" : ""}`}
+                key={suggestion.escort_id}
+              >
+                <input
+                  type="radio"
+                  name="escort"
+                  checked={selectedEscortId === suggestion.escort_id}
+                  onChange={() => {
+                    setSelectedEscortId(suggestion.escort_id);
+                    setConfirmError("");
+                  }}
+                />
+                <span className="escort-copy">
+                  <span className="escort-name">
+                    <strong>{suggestion.name}</strong>
+                    <span>{suggestion.gender === "F" ? "Female" : "Male"}</span>
+                    {index === 0 && (
+                      <span className="top-choice">Top suggestion</span>
+                    )}
+                  </span>
+                  <span className="reason-lines">
+                    {suggestion.flairs.length ? (
+                      suggestion.flairs.map((flair) => (
+                        <span key={flair}>
+                          <Check size={15} aria-hidden="true" />
+                          {flair}
+                        </span>
+                      ))
+                    ) : (
+                      <span>
+                        <Check size={15} aria-hidden="true" />
+                        Available at this time
+                      </span>
+                    )}
+                  </span>
+                </span>
               </label>
             ))}
           </fieldset>
         )}
         {suggestions.length > 0 && !overrideMode && (
           <div className="confirm-area">
-            <div><span>Your selection</span><strong>{selectedSuggestion?.name ?? "Choose an escort above"}</strong></div>
-            <button type="button" className="primary-button" disabled={!selectedSuggestion || confirmState === "loading"} onClick={() => void confirmStandard()}>{confirmState === "loading" ? "Confirming…" : selectedSuggestion ? `Confirm ${selectedSuggestion.name}` : "Select an escort first"}</button>
+            <div>
+              <span>Your selection</span>
+              <strong>
+                {selectedSuggestion?.name ?? "Choose an escort above"}
+              </strong>
+            </div>
+            <button
+              type="button"
+              className="primary-button"
+              disabled={!selectedSuggestion || confirmState === "loading"}
+              onClick={() => void confirmStandard()}
+            >
+              {confirmState === "loading"
+                ? "Confirming…"
+                : selectedSuggestion
+                  ? `Confirm ${selectedSuggestion.name}`
+                  : "Select an escort first"}
+            </button>
           </div>
         )}
-        {confirmError && !overrideMode && <p className="inline-message error" role="alert">{confirmError}</p>}
+        {confirmError && !overrideMode && (
+          <p className="inline-message error" role="alert">
+            {confirmError}
+          </p>
+        )}
         {overrideMode && (
           <OverrideSection
-            warning={lateIssues.length ? "This escort now has a conflict." : warning ?? "No escort meets every requirement."}
+            warning={
+              lateIssues.length
+                ? "This escort now has a conflict."
+                : (warning ?? "No escort meets every requirement.")
+            }
             lateIssues={lateIssues}
             options={options}
             state={optionsState}
@@ -751,11 +1091,46 @@ function MatchingCase({
   );
 }
 
-function NeedRow({ icon, label, value, note }: { icon: ReactElement; label: string; value: string; note?: string }) {
-  return <div className="need-row"><span className="need-icon" aria-hidden="true">{icon}</span><div><span className="need-label">{label}</span><span className="need-value">{value}</span>{note && <small>{note}</small>}</div></div>;
+function NeedRow({
+  icon,
+  label,
+  value,
+  note,
+}: {
+  icon: ReactElement;
+  label: string;
+  value: string;
+  note?: string;
+}) {
+  return (
+    <div className="need-row">
+      <span className="need-icon" aria-hidden="true">
+        {icon}
+      </span>
+      <div>
+        <span className="need-label">{label}</span>
+        <span className="need-value">{value}</span>
+        {note && <small>{note}</small>}
+      </div>
+    </div>
+  );
 }
 
-function OverrideSection({ warning, lateIssues, options, state, error, selectedId, reason, confirmError, confirming, onSelect, onReason, onRetry, onSubmit }: {
+function OverrideSection({
+  warning,
+  lateIssues,
+  options,
+  state,
+  error,
+  selectedId,
+  reason,
+  confirmError,
+  confirming,
+  onSelect,
+  onReason,
+  onRetry,
+  onSubmit,
+}: {
   warning: string;
   lateIssues: string[];
   options: EscortOption[];
@@ -773,43 +1148,187 @@ function OverrideSection({ warning, lateIssues, options, state, error, selectedI
   const selected = options.find((item) => item.escort_id === selectedId);
   return (
     <div className="override-section">
-      <div className="warning-message" role="alert"><AlertCircle size={21} aria-hidden="true" /><div><strong>Manual review needed</strong><p>{warning} You may continue only with a recorded reason.</p>{lateIssues.length > 0 && <ul>{lateIssues.map((issue) => <li key={issue}>{issue}</li>)}</ul>}</div></div>
+      <div className="warning-message" role="alert">
+        <AlertCircle size={21} aria-hidden="true" />
+        <div>
+          <strong>Manual review needed</strong>
+          <p>{warning} You may continue only with a recorded reason.</p>
+          {lateIssues.length > 0 && (
+            <ul>
+              {lateIssues.map((issue) => (
+                <li key={issue}>{issue}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
       <h4>Review all escorts</h4>
       {state === "loading" && <SuggestionSkeleton />}
-      {state === "error" && <MessageState kind="error" title="Escort list could not load" message={error} actionLabel="Try again" onAction={onRetry} />}
+      {state === "error" && (
+        <MessageState
+          kind="error"
+          title="Escort list could not load"
+          message={error}
+          actionLabel="Try again"
+          onAction={onRetry}
+        />
+      )}
       {state === "success" && (
         <form onSubmit={onSubmit}>
-          <fieldset className="override-list"><legend className="sr-only">Choose an escort with an override</legend>{options.map((option) => <label className={`override-row ${selectedId === option.escort_id ? "selected" : ""}`} key={option.escort_id}><input type="radio" name="override-escort" checked={selectedId === option.escort_id} onChange={() => onSelect(option.escort_id)} /><span><strong>{option.name}</strong><small>{option.gender === "F" ? "Female" : "Male"} · {option.available_timeslot}</small>{option.issues.map((issue) => <span className="issue-line" key={issue}>{issue}</span>)}</span></label>)}</fieldset>
-          <label className="reason-field"><span>Reason for overriding</span><textarea rows={3} value={reason} onChange={(event) => onReason(event.target.value)} disabled={!selected} required placeholder="Explain why this escort can safely cover the appointment" /></label>
-          {confirmError && <p className="inline-message error" role="alert">{confirmError}</p>}
-          <button type="submit" className="warning-button" disabled={!selected || !reason.trim() || confirming}>{confirming ? "Confirming…" : selected ? `Confirm ${selected.name} with override` : "Select an escort first"}</button>
+          <fieldset className="override-list">
+            <legend className="sr-only">
+              Choose an escort with an override
+            </legend>
+            {options.map((option) => (
+              <label
+                className={`override-row ${selectedId === option.escort_id ? "selected" : ""}`}
+                key={option.escort_id}
+              >
+                <input
+                  type="radio"
+                  name="override-escort"
+                  checked={selectedId === option.escort_id}
+                  onChange={() => onSelect(option.escort_id)}
+                />
+                <span>
+                  <strong>{option.name}</strong>
+                  <small>
+                    {option.gender === "F" ? "Female" : "Male"} ·{" "}
+                    {option.available_timeslot}
+                  </small>
+                  {option.issues.map((issue) => (
+                    <span className="issue-line" key={issue}>
+                      {issue}
+                    </span>
+                  ))}
+                </span>
+              </label>
+            ))}
+          </fieldset>
+          <label className="reason-field">
+            <span>Reason for overriding</span>
+            <textarea
+              rows={3}
+              value={reason}
+              onChange={(event) => onReason(event.target.value)}
+              disabled={!selected}
+              required
+              placeholder="Explain why this escort can safely cover the appointment"
+            />
+          </label>
+          {confirmError && (
+            <p className="inline-message error" role="alert">
+              {confirmError}
+            </p>
+          )}
+          <button
+            type="submit"
+            className="warning-button"
+            disabled={!selected || !reason.trim() || confirming}
+          >
+            {confirming
+              ? "Confirming…"
+              : selected
+                ? `Confirm ${selected.name} with override`
+                : "Select an escort first"}
+          </button>
         </form>
       )}
     </div>
   );
 }
 
-function ConfirmationView({ result, onClose }: { result: ConfirmationResult; onClose: () => void }) {
+function ConfirmationView({
+  result,
+  onClose,
+}: {
+  result: ConfirmationResult;
+  onClose: () => void;
+}) {
   return (
     <div className="confirmation-view" role="status">
-      <span className="confirmation-icon"><CheckCircle2 size={34} aria-hidden="true" /></span>
+      <span className="confirmation-icon">
+        <CheckCircle2 size={34} aria-hidden="true" />
+      </span>
       <p className="eyebrow">Escort confirmed</p>
       <h2>{result.escortName} is assigned</h2>
-      <p>{result.trip.elderly_name} · {formatDate(result.trip.appt_date, true)} at {formatTime(result.trip.appt_time)}</p>
-      <dl><div><dt>Destination</dt><dd>{result.trip.destination}</dd></div><div><dt>Assignment</dt><dd>{result.override ? "Confirmed with recorded override" : "Confirmed from suggestions"}</dd></div></dl>
-      <button type="button" className="primary-button" onClick={onClose}>Match next appointment</button>
+      <p>
+        {result.trip.elderly_name} · {formatDate(result.trip.appt_date, true)}{" "}
+        at {formatTime(result.trip.appt_time)}
+      </p>
+      <dl>
+        <div>
+          <dt>Destination</dt>
+          <dd>{result.trip.destination}</dd>
+        </div>
+        <div>
+          <dt>Assignment</dt>
+          <dd>
+            {result.override
+              ? "Confirmed with recorded override"
+              : "Confirmed from suggestions"}
+          </dd>
+        </div>
+      </dl>
+      <button type="button" className="primary-button" onClick={onClose}>
+        Match next appointment
+      </button>
     </div>
   );
 }
 
-function MessageState({ kind, title, message, actionLabel, onAction }: { kind: "error" | "success" | "neutral"; title: string; message: string; actionLabel?: string; onAction?: () => void }) {
-  return <div className={`message-state ${kind}`} role={kind === "error" ? "alert" : "status"}>{kind === "success" ? <CheckCircle2 size={28} aria-hidden="true" /> : kind === "error" ? <AlertCircle size={28} aria-hidden="true" /> : <Search size={28} aria-hidden="true" />}<strong>{title}</strong><p>{message}</p>{actionLabel && onAction && <button type="button" className="secondary-button" onClick={onAction}>{actionLabel}</button>}</div>;
+function MessageState({
+  kind,
+  title,
+  message,
+  actionLabel,
+  onAction,
+}: {
+  kind: "error" | "success" | "neutral";
+  title: string;
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div
+      className={`message-state ${kind}`}
+      role={kind === "error" ? "alert" : "status"}
+    >
+      {kind === "success" ? (
+        <CheckCircle2 size={28} aria-hidden="true" />
+      ) : kind === "error" ? (
+        <AlertCircle size={28} aria-hidden="true" />
+      ) : (
+        <Search size={28} aria-hidden="true" />
+      )}
+      <strong>{title}</strong>
+      <p>{message}</p>
+      {actionLabel && onAction && (
+        <button type="button" className="secondary-button" onClick={onAction}>
+          {actionLabel}
+        </button>
+      )}
+    </div>
+  );
 }
 
 function PatientSkeleton() {
-  return <div className="patient-grid" aria-label="Loading patients">{[1, 2, 3, 4].map((item) => <span className="skeleton patient-skeleton" key={item} />)}</div>;
+  return (
+    <div className="patient-grid" aria-label="Loading patients">
+      {[1, 2, 3, 4].map((item) => (
+        <span className="skeleton patient-skeleton" key={item} />
+      ))}
+    </div>
+  );
 }
 
 function SuggestionSkeleton() {
-  return <div className="skeleton-stack" aria-label="Loading escort suggestions">{[1, 2, 3].map((item) => <span className="skeleton suggestion-skeleton" key={item} />)}</div>;
+  return (
+    <div className="skeleton-stack" aria-label="Loading escort suggestions">
+      {[1, 2, 3].map((item) => (
+        <span className="skeleton suggestion-skeleton" key={item} />
+      ))}
+    </div>
+  );
 }

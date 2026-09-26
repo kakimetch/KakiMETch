@@ -95,11 +95,11 @@ export class ApiError extends Error {
     super(
       typeof detail === "string"
         ? detail
-        : detail?.message ?? "Something went wrong. Please try again.",
+        : (detail?.message ?? "Something went wrong. Please try again."),
     );
     this.name = "ApiError";
     this.status = status;
-    this.issues = typeof detail === "object" ? detail.issues ?? [] : [];
+    this.issues = typeof detail === "object" ? (detail.issues ?? []) : [];
   }
 }
 
@@ -128,10 +128,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(response.status, payload);
   }
 
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
-export const getMatchingQueue = () => request<MatchingQueueItem[]>("/matching-queue");
+export const getMatchingQueue = () =>
+  request<MatchingQueueItem[]>("/matching-queue");
 
 export const getScheduledTrips = () => request<ScheduledTrip[]>("/schedule");
 
@@ -140,7 +142,6 @@ export const getEscortSuggestions = (tripId: string) =>
 
 export const getEscortOptions = (tripId: string) =>
   request<EscortOption[]>(`/trips/${tripId}/escort-options`);
-
 
 export const updateMatchingProfile = (
   elderlyId: string,
@@ -198,6 +199,7 @@ export interface PatientSummary {
   nmtr_percentage: number | null;
   escort_required: boolean;
   last_visit: string | null;
+  deleted_at: string | null;
 }
 
 export interface PatientDetail {
@@ -233,11 +235,12 @@ export interface PatientDetail {
   aic_mobility_status: MobilityStatus;
   lh_mobility_status: MobilityStatus;
   last_visit: string | null;
+  deleted_at: string | null;
 }
 
 export type PatientWrite = Omit<
   PatientDetail,
-  "id" | "address" | "last_visit"
+  "id" | "address" | "last_visit" | "deleted_at"
 >;
 
 export interface ImportSummary {
@@ -245,7 +248,11 @@ export interface ImportSummary {
   skipped_count: number;
 }
 
-export const getPatients = () => request<PatientSummary[]>("/registry/patients");
+export const getPatients = () =>
+  request<PatientSummary[]>("/registry/patients");
+
+export const getDeletedPatients = () =>
+  request<PatientSummary[]>("/registry/patients?deleted=true");
 
 export const getPatient = (patientId: string) =>
   request<PatientDetail>(`/registry/patients/${patientId}`);
@@ -260,6 +267,16 @@ export const updatePatient = (patientId: string, patient: PatientWrite) =>
   request<PatientDetail>(`/registry/patients/${patientId}`, {
     method: "PUT",
     body: JSON.stringify(patient),
+  });
+
+export const deletePatient = (patientId: string) =>
+  request<void>(`/registry/patients/${patientId}`, {
+    method: "DELETE",
+  });
+
+export const restorePatient = (patientId: string) =>
+  request<PatientDetail>(`/registry/patients/${patientId}/restore`, {
+    method: "POST",
   });
 
 export const importPatients = (file: File) => {

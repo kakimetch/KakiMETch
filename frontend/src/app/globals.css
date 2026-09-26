@@ -36,7 +36,12 @@ body {
   margin: 0;
   background: var(--desk);
   color: var(--ink);
-  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -309,7 +314,9 @@ input::placeholder {
   background: var(--paper);
   text-align: left;
   cursor: pointer;
-  transition: border-color 160ms ease-out, background-color 160ms ease-out;
+  transition:
+    border-color 160ms ease-out,
+    background-color 160ms ease-out;
 }
 
 .existing-module {
@@ -736,6 +743,57 @@ input::placeholder {
   color: var(--error);
 }
 
+.danger-zone {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 0;
+}
+
+.danger-zone p:not(.eyebrow) {
+  max-width: 52ch;
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.danger-zone h3 {
+  margin-bottom: 8px;
+  color: var(--error);
+}
+
+.delete-warning {
+  padding: 14px 16px;
+  border: 1px solid var(--error);
+  border-radius: 8px;
+  background: var(--error-soft);
+  color: var(--ink);
+}
+
+.delete-warning strong {
+  color: var(--error);
+}
+
+.delete-confirm-field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.delete-confirm-field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 400;
+}
+
 .primary-button:disabled,
 .secondary-button:disabled,
 .warning-button:disabled,
@@ -764,7 +822,9 @@ input::placeholder {
   border-radius: var(--radius);
   background: var(--paper);
   cursor: pointer;
-  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+  transition:
+    border-color 150ms ease-out,
+    background-color 150ms ease-out;
 }
 
 .suggestion-row:hover,
@@ -1005,6 +1065,31 @@ input::placeholder {
   gap: 10px;
 }
 
+.registry-view-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.registry-view-toggle button {
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.registry-view-toggle button[aria-selected="true"] {
+  background: var(--teal-soft);
+  color: var(--teal-dark);
+}
+
 .registry-module-body {
   display: grid;
   gap: 6px;
@@ -1042,6 +1127,44 @@ input::placeholder {
   border-color: transparent;
   background: var(--teal-soft);
   color: var(--teal-dark);
+}
+
+.registry-badge.deleted {
+  border-color: transparent;
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+.deleted-detail-list {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-soft);
+}
+
+.deleted-detail-list dt {
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.deleted-detail-list dd {
+  margin: 2px 0 0;
+}
+
+.restore-zone {
+  display: grid;
+  gap: 16px;
+  border-bottom: 0;
+}
+
+.restore-zone p:not(.eyebrow) {
+  max-width: 52ch;
+  margin-bottom: 0;
+  color: var(--muted);
 }
 
 .registry-form-grid {
@@ -1160,18 +1283,32 @@ input::placeholder {
 }
 
 @keyframes drawer-in {
-  from { transform: translateX(22px); opacity: 0.88; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(22px);
+    opacity: 0.88;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes skeleton-shift {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1264,7 +1401,8 @@ input::placeholder {
   }
 
   .form-actions,
-  .confirm-area {
+  .confirm-area,
+  .danger-zone {
     align-items: stretch;
     flex-direction: column;
   }
@@ -1289,6 +1427,14 @@ input::placeholder {
 
   .registry-actions {
     flex-direction: column;
+  }
+
+  .registry-view-toggle {
+    width: 100%;
+  }
+
+  .registry-view-toggle button {
+    flex: 1;
   }
 
   .registry-form-grid {

@@ -63,13 +63,13 @@ def rank_escorts(
             )
         )
 
-    suggestions.sort(key=lambda suggestion: (-suggestion.score, suggestion.name.casefold()))
+    suggestions.sort(
+        key=lambda suggestion: (-suggestion.score, suggestion.name.casefold())
+    )
     suggestions = suggestions[:limit]
     warning = None
     if not suggestions:
-        warning = (
-            "No viable escort is available. An admin can assign an escort with an override reason."
-        )
+        warning = "No viable escort is available. An admin can assign an escort with an override reason."
 
     return MatchResult(suggestions=suggestions, warning=warning)
 
@@ -113,6 +113,7 @@ def get_escort_suggestions(trip_id: UUID, limit: int = 3) -> MatchResult:
                 from public.trips
                 join public.elderly_clients on elderly_clients.id = trips.elderly_id
                 where trips.id = %s
+                  and elderly_clients.deleted_at is null
                 """,
                 (trip_id,),
             )
@@ -162,7 +163,9 @@ def get_escort_suggestions(trip_id: UUID, limit: int = 3) -> MatchResult:
     return rank_escorts(trip, trip["appt_date"], trip["appt_time"], escorts, limit)
 
 
-def is_available(escort: Mapping[str, object], appt_date: date, appt_time: time) -> bool:
+def is_available(
+    escort: Mapping[str, object], appt_date: date, appt_time: time
+) -> bool:
     available_days = _as_text_set(escort.get("available_days"))
     if appt_date.strftime("%a").casefold() not in available_days:
         return False
@@ -198,4 +201,3 @@ def _as_text_set(value: object) -> set[str]:
 
 def _as_text(value: object) -> str:
     return value.strip() if isinstance(value, str) else ""
-

@@ -7,7 +7,6 @@ from psycopg2.extras import Json
 from app.database import get_connection
 from app.schemas.assessment import AssessmentResult
 
-
 # MVP geographic boundary based on South West Singapore place names.
 SOUTHWEST_AREA_KEYWORDS = (
     "boon lay",
@@ -107,6 +106,7 @@ def assess_trip(trip_id: UUID) -> AssessmentResult:
                 from public.trips
                 join public.elderly_clients on elderly_clients.id = trips.elderly_id
                 where trips.id = %s
+                  and elderly_clients.deleted_at is null
                 for update
                 """,
                 (trip_id,),

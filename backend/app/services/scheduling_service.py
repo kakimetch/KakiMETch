@@ -45,6 +45,7 @@ def confirm_escort(
                 from public.trips
                 join public.elderly_clients on elderly_clients.id = trips.elderly_id
                 where trips.id = %s
+                  and elderly_clients.deleted_at is null
                 for update of trips
                 """,
                 (trip_id,),
@@ -122,8 +123,7 @@ def confirm_escort(
 def get_scheduled_trips() -> list[ScheduledTrip]:
     with get_connection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
+            cursor.execute("""
                 select
                     trips.id as trip_id,
                     elderly_clients.id as elderly_id,
@@ -141,9 +141,9 @@ def get_scheduled_trips() -> list[ScheduledTrip]:
                 join public.elderly_clients on elderly_clients.id = trips.elderly_id
                 join public.escorts on escorts.id = trips.escort_id
                 where trips.status = 'scheduled'
+                  and elderly_clients.deleted_at is null
                 order by trips.appt_date, trips.appt_time, elderly_clients.name
-                """
-            )
+                """)
             trips: list[Mapping[str, object]] = cursor.fetchall()
 
     return [ScheduledTrip.model_validate(trip) for trip in trips]

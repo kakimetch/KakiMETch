@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+message_file="$1"
+subject="$(sed -n '1p' "$message_file")"
+
+case "$subject" in
+  Merge\ *|Revert\ *|fixup!\ *|squash!\ *) exit 0 ;;
+esac
+
+if printf '%s\n' "$subject" | grep -Eq '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9._-]+\))?!?: .+'; then
+  exit 0
+fi
+
+cat >&2 <<'EOF'
+Commit message must use Conventional Commits:
+
+  type(scope): summary
+  type: summary
+
+Allowed types: build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test.
+Examples: feat(registry): add patient import
+          ci: add dependency checks
+EOF
+exit 1

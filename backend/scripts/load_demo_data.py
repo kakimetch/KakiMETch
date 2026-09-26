@@ -47,9 +47,15 @@ def load_demo_data(data_directory: Path = DATA_DIRECTORY) -> tuple[int, int, int
     """Import the provided demo workbooks and return client, escort, and trip counts."""
     with get_connection() as connection:
         with connection.cursor() as cursor:
-            client_count = load_clients(cursor, data_directory / "Dummy_MasterData_Updated.xlsx")
-            escort_count = load_escorts(cursor, data_directory / "Dummy_EscortRoster.xlsx")
-            trip_count = load_trips(cursor, data_directory / "Dummy_ScheduleData_September_2026.xlsx")
+            client_count = load_clients(
+                cursor, data_directory / "Dummy_MasterData_Updated.xlsx"
+            )
+            escort_count = load_escorts(
+                cursor, data_directory / "Dummy_EscortRoster.xlsx"
+            )
+            trip_count = load_trips(
+                cursor, data_directory / "Dummy_ScheduleData_September_2026.xlsx"
+            )
 
     return client_count, escort_count, trip_count
 
@@ -123,8 +129,12 @@ def load_clients(cursor: Any, workbook_path: Path) -> int:
                 "escort_required": is_yes(row["Escort (Y/N)"]),
                 "co_payment": row["Co-payment"],
                 "date_of_birth": parse_excel_date(row["DOB (YYYYMMDD)"]),
-                "nmts_effective_date": parse_excel_date(row["NMTS effective date (YYYYMMDD)"]),
-                "nmts_expired_date": parse_excel_date(row["NMTS expired date (YYYYMMDD)"]),
+                "nmts_effective_date": parse_excel_date(
+                    row["NMTS effective date (YYYYMMDD)"]
+                ),
+                "nmts_expired_date": parse_excel_date(
+                    row["NMTS expired date (YYYYMMDD)"]
+                ),
                 "date_of_entry": parse_excel_date(row["Date Of Entry (YYYMMDD)"]),
                 "action_updated_date": as_text(row["Action/updated date"]),
                 "lh_service_agreement": as_text(row["LH Service Agreement"]) or None,
