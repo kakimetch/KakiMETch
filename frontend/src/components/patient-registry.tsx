@@ -58,8 +58,7 @@ import {
 type LoadState = "idle" | "loading" | "success" | "error";
 type RegistryView = "active" | "deleted";
 type DrawerMode =
-  | { kind: "add" }
-  | { kind: "edit"; patientId: string; view: RegistryView };
+  { kind: "add" } | { kind: "edit"; patientId: string; view: RegistryView };
 
 const MOBILITY_OPTIONS: { value: MobilityStatus; label: string }[] = [
   { value: "unknown", label: "Not yet assessed" },
@@ -176,7 +175,9 @@ export function PatientRegistry() {
         </Link>
         <nav className="header-nav" aria-label="KakiMETch sections">
           <Link href="/app/matching">Escort matching</Link>
-          <Link href="/app/registry" aria-current="page">Patient registry</Link>
+          <Link href="/app/registry" aria-current="page">
+            Patient registry
+          </Link>
         </nav>
         <span className="demo-label">Demo workspace</span>
       </header>
@@ -1042,448 +1043,454 @@ function PatientForm({
   return (
     <>
       <form className="drawer-content" onSubmit={handleSubmit}>
-      <section className="drawer-section" aria-labelledby="identity-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Identity</p>
-            <h3 id="identity-heading">Name and identification</h3>
+        <section className="drawer-section" aria-labelledby="identity-heading">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Identity</p>
+              <h3 id="identity-heading">Name and identification</h3>
+            </div>
           </div>
-        </div>
-        <div className="registry-form-grid">
-          <label>
-            <span>Full name</span>
-            <input
-              value={form.name}
-              onChange={(event) => setField("name", event.target.value)}
-              required
-              maxLength={200}
-            />
-          </label>
-          <label>
-            <span>NRIC / IC number</span>
-            <input
-              value={form.nric}
-              onChange={(event) => setField("nric", event.target.value)}
-              maxLength={20}
-            />
-          </label>
-          <label>
-            <span>Gender</span>
-            <select
-              value={form.gender}
-              onChange={(event) =>
-                setField("gender", event.target.value as FormState["gender"])
-              }
-            >
-              <option value="">Not recorded</option>
-              <option value="F">Female</option>
-              <option value="M">Male</option>
-            </select>
-          </label>
-          <label>
-            <span>Date of birth</span>
-            <input
-              type="date"
-              value={form.date_of_birth}
-              onChange={(event) =>
-                setField("date_of_birth", event.target.value)
-              }
-            />
-          </label>
-          <label>
-            <span>AIC registration no.</span>
-            <input
-              value={form.aic_registration_no}
-              onChange={(event) =>
-                setField("aic_registration_no", event.target.value)
-              }
-              maxLength={50}
-            />
-          </label>
-        </div>
-      </section>
-
-      <section className="drawer-section" aria-labelledby="address-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Where they live</p>
-            <h3 id="address-heading">Address</h3>
+          <div className="registry-form-grid">
+            <label>
+              <span>Full name</span>
+              <input
+                value={form.name}
+                onChange={(event) => setField("name", event.target.value)}
+                required
+                maxLength={200}
+              />
+            </label>
+            <label>
+              <span>NRIC / IC number</span>
+              <input
+                value={form.nric}
+                onChange={(event) => setField("nric", event.target.value)}
+                maxLength={20}
+              />
+            </label>
+            <label>
+              <span>Gender</span>
+              <select
+                value={form.gender}
+                onChange={(event) =>
+                  setField("gender", event.target.value as FormState["gender"])
+                }
+              >
+                <option value="">Not recorded</option>
+                <option value="F">Female</option>
+                <option value="M">Male</option>
+              </select>
+            </label>
+            <label>
+              <span>Date of birth</span>
+              <input
+                type="date"
+                value={form.date_of_birth}
+                onChange={(event) =>
+                  setField("date_of_birth", event.target.value)
+                }
+              />
+            </label>
+            <label>
+              <span>AIC registration no.</span>
+              <input
+                value={form.aic_registration_no}
+                onChange={(event) =>
+                  setField("aic_registration_no", event.target.value)
+                }
+                maxLength={50}
+              />
+            </label>
           </div>
-        </div>
-        <div className="registry-form-grid">
-          <label>
-            <span>Postal code</span>
-            <input
-              value={form.postal_code}
-              onChange={(event) => setField("postal_code", event.target.value)}
-              maxLength={6}
-              inputMode="numeric"
-            />
-          </label>
-          <label>
-            <span>Block</span>
-            <input
-              value={form.block}
-              onChange={(event) => setField("block", event.target.value)}
-              maxLength={20}
-            />
-          </label>
-          <label>
-            <span>Unit</span>
-            <input
-              value={form.unit}
-              onChange={(event) => setField("unit", event.target.value)}
-              maxLength={20}
-            />
-          </label>
-          <label>
-            <span>Street name</span>
-            <input
-              value={form.street_name}
-              onChange={(event) => setField("street_name", event.target.value)}
-              maxLength={200}
-            />
-          </label>
-          <label>
-            <span>Address source</span>
-            <input
-              value={form.address_source}
-              onChange={(event) =>
-                setField("address_source", event.target.value)
-              }
-              maxLength={200}
-            />
-          </label>
-        </div>
-      </section>
-
-      <section className="drawer-section" aria-labelledby="contact-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Getting in touch</p>
-            <h3 id="contact-heading">Contact and caregiver</h3>
-          </div>
-        </div>
-        <div className="registry-form-grid">
-          <label>
-            <span>Contact number</span>
-            <input
-              value={form.contact_no}
-              onChange={(event) => setField("contact_no", event.target.value)}
-              maxLength={30}
-            />
-          </label>
-          <label>
-            <span>Caregiver name</span>
-            <input
-              value={form.caregiver_name}
-              onChange={(event) =>
-                setField("caregiver_name", event.target.value)
-              }
-              maxLength={200}
-            />
-          </label>
-          <label>
-            <span>Caregiver or maid available</span>
-            <select
-              value={form.caregiver_or_maid_available}
-              onChange={(event) =>
-                setField(
-                  "caregiver_or_maid_available",
-                  event.target
-                    .value as FormState["caregiver_or_maid_available"],
-                )
-              }
-            >
-              <option value="">Not recorded</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
-          </label>
-        </div>
-      </section>
-
-      <section className="drawer-section" aria-labelledby="mobility-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Care needs</p>
-            <h3 id="mobility-heading">Mobility and equipment</h3>
-          </div>
-        </div>
-        <div className="registry-form-grid">
-          <label className="checkbox-field">
-            <input
-              type="checkbox"
-              checked={form.wheelchair_required}
-              onChange={(event) =>
-                setField("wheelchair_required", event.target.checked)
-              }
-            />
-            <span>Wheelchair required</span>
-          </label>
-          <label className="checkbox-field">
-            <input
-              type="checkbox"
-              checked={form.walking_frame_required}
-              onChange={(event) =>
-                setField("walking_frame_required", event.target.checked)
-              }
-            />
-            <span>Walking frame / stick required</span>
-          </label>
-          <label>
-            <span>AIC-reported mobility status</span>
-            <select
-              value={form.aic_mobility_status}
-              onChange={(event) =>
-                setField(
-                  "aic_mobility_status",
-                  event.target.value as MobilityStatus,
-                )
-              }
-            >
-              {MOBILITY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span>LH-assessed mobility status</span>
-            <select
-              value={form.lh_mobility_status}
-              onChange={(event) =>
-                setField(
-                  "lh_mobility_status",
-                  event.target.value as MobilityStatus,
-                )
-              }
-            >
-              {MOBILITY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </section>
-
-      <section className="drawer-section" aria-labelledby="matching-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Escort matching inputs</p>
-            <h3 id="matching-heading">Escort and preferences</h3>
-          </div>
-        </div>
-        <div className="registry-form-grid">
-          <label className="checkbox-field">
-            <input
-              type="checkbox"
-              checked={form.escort_required}
-              onChange={(event) =>
-                setField("escort_required", event.target.checked)
-              }
-            />
-            <span>Escort required</span>
-          </label>
-          <label>
-            <span>Escort gender preference</span>
-            <select
-              value={form.gender_preference}
-              onChange={(event) =>
-                setField(
-                  "gender_preference",
-                  event.target.value as FormState["gender_preference"],
-                )
-              }
-            >
-              <option value="">No preference</option>
-              <option value="F">Female</option>
-              <option value="M">Male</option>
-            </select>
-          </label>
-          <label>
-            <span>Dialect</span>
-            <input
-              value={form.dialect}
-              onChange={(event) => setField("dialect", event.target.value)}
-              maxLength={100}
-              placeholder="e.g. Hokkien"
-            />
-          </label>
-          <label>
-            <span>Weight (kg)</span>
-            <input
-              type="number"
-              min="0.01"
-              max="999.99"
-              step="0.01"
-              value={form.weight_kg}
-              onChange={(event) => setField("weight_kg", event.target.value)}
-              placeholder="Optional"
-            />
-          </label>
-        </div>
-      </section>
-
-      <section className="drawer-section" aria-labelledby="agreement-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Certification and funding</p>
-            <h3 id="agreement-heading">NMTS and service agreements</h3>
-          </div>
-        </div>
-        <div className="registry-form-grid">
-          <label>
-            <span>NMTS effective date</span>
-            <input
-              type="date"
-              value={form.nmts_effective_date}
-              onChange={(event) =>
-                setField("nmts_effective_date", event.target.value)
-              }
-            />
-          </label>
-          <label>
-            <span>NMTS expiry date</span>
-            <input
-              type="date"
-              value={form.nmts_expired_date}
-              onChange={(event) =>
-                setField("nmts_expired_date", event.target.value)
-              }
-            />
-          </label>
-          <label>
-            <span>LH service agreement</span>
-            <select
-              value={form.lh_service_agreement}
-              onChange={(event) =>
-                setField(
-                  "lh_service_agreement",
-                  event.target.value as FormState["lh_service_agreement"],
-                )
-              }
-            >
-              <option value="">Not recorded</option>
-              {AGREEMENT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span>SW service agreement</span>
-            <select
-              value={form.sw_service_agreement}
-              onChange={(event) =>
-                setField(
-                  "sw_service_agreement",
-                  event.target.value as FormState["sw_service_agreement"],
-                )
-              }
-            >
-              <option value="">Not recorded</option>
-              {AGREEMENT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span>NMTS subsidy (%)</span>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              step="1"
-              value={form.nmtr_percentage}
-              onChange={(event) =>
-                setField("nmtr_percentage", event.target.value)
-              }
-              placeholder="e.g. 95"
-            />
-          </label>
-          <label>
-            <span>Co-payment ($)</span>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.co_payment}
-              onChange={(event) => setField("co_payment", event.target.value)}
-              placeholder="Optional"
-            />
-          </label>
-          <label>
-            <span>Date of entry</span>
-            <input
-              type="date"
-              value={form.date_of_entry}
-              onChange={(event) =>
-                setField("date_of_entry", event.target.value)
-              }
-            />
-          </label>
-          <label>
-            <span>Action / updated date note</span>
-            <input
-              value={form.action_updated_date}
-              onChange={(event) =>
-                setField("action_updated_date", event.target.value)
-              }
-              maxLength={200}
-            />
-          </label>
-        </div>
-      </section>
-
-      <section className="drawer-section" style={{ borderBottom: 0 }}>
-        {saveError && (
-          <p className="inline-message error" role="alert">
-            {saveError}
-          </p>
-        )}
-        <div className="form-actions" style={{ marginTop: saveError ? 16 : 0 }}>
-          <button
-            type="submit"
-            className="primary-button"
-            disabled={saveState === "loading"}
-          >
-            {saveState === "loading"
-              ? "Saving…"
-              : patientId
-                ? "Save changes"
-                : "Add patient"}
-          </button>
-        </div>
-      </section>
-
-      {patientId && initial && (
-        <section className="drawer-section danger-zone">
-          <div>
-            <p className="eyebrow">Remove patient</p>
-            <h3>Delete patient record</h3>
-            <p>
-              This hides the patient from active registry and matching views,
-              while keeping the record for audit history.
-            </p>
-          </div>
-          <button
-            type="button"
-            className="secondary-button danger-button"
-            onClick={() => setDeleteOpen(true)}
-          >
-            <Trash2 size={18} aria-hidden="true" />
-            Delete patient
-          </button>
         </section>
-      )}
 
+        <section className="drawer-section" aria-labelledby="address-heading">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Where they live</p>
+              <h3 id="address-heading">Address</h3>
+            </div>
+          </div>
+          <div className="registry-form-grid">
+            <label>
+              <span>Postal code</span>
+              <input
+                value={form.postal_code}
+                onChange={(event) =>
+                  setField("postal_code", event.target.value)
+                }
+                maxLength={6}
+                inputMode="numeric"
+              />
+            </label>
+            <label>
+              <span>Block</span>
+              <input
+                value={form.block}
+                onChange={(event) => setField("block", event.target.value)}
+                maxLength={20}
+              />
+            </label>
+            <label>
+              <span>Unit</span>
+              <input
+                value={form.unit}
+                onChange={(event) => setField("unit", event.target.value)}
+                maxLength={20}
+              />
+            </label>
+            <label>
+              <span>Street name</span>
+              <input
+                value={form.street_name}
+                onChange={(event) =>
+                  setField("street_name", event.target.value)
+                }
+                maxLength={200}
+              />
+            </label>
+            <label>
+              <span>Address source</span>
+              <input
+                value={form.address_source}
+                onChange={(event) =>
+                  setField("address_source", event.target.value)
+                }
+                maxLength={200}
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="drawer-section" aria-labelledby="contact-heading">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Getting in touch</p>
+              <h3 id="contact-heading">Contact and caregiver</h3>
+            </div>
+          </div>
+          <div className="registry-form-grid">
+            <label>
+              <span>Contact number</span>
+              <input
+                value={form.contact_no}
+                onChange={(event) => setField("contact_no", event.target.value)}
+                maxLength={30}
+              />
+            </label>
+            <label>
+              <span>Caregiver name</span>
+              <input
+                value={form.caregiver_name}
+                onChange={(event) =>
+                  setField("caregiver_name", event.target.value)
+                }
+                maxLength={200}
+              />
+            </label>
+            <label>
+              <span>Caregiver or maid available</span>
+              <select
+                value={form.caregiver_or_maid_available}
+                onChange={(event) =>
+                  setField(
+                    "caregiver_or_maid_available",
+                    event.target
+                      .value as FormState["caregiver_or_maid_available"],
+                  )
+                }
+              >
+                <option value="">Not recorded</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section className="drawer-section" aria-labelledby="mobility-heading">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Care needs</p>
+              <h3 id="mobility-heading">Mobility and equipment</h3>
+            </div>
+          </div>
+          <div className="registry-form-grid">
+            <label className="checkbox-field">
+              <input
+                type="checkbox"
+                checked={form.wheelchair_required}
+                onChange={(event) =>
+                  setField("wheelchair_required", event.target.checked)
+                }
+              />
+              <span>Wheelchair required</span>
+            </label>
+            <label className="checkbox-field">
+              <input
+                type="checkbox"
+                checked={form.walking_frame_required}
+                onChange={(event) =>
+                  setField("walking_frame_required", event.target.checked)
+                }
+              />
+              <span>Walking frame / stick required</span>
+            </label>
+            <label>
+              <span>AIC-reported mobility status</span>
+              <select
+                value={form.aic_mobility_status}
+                onChange={(event) =>
+                  setField(
+                    "aic_mobility_status",
+                    event.target.value as MobilityStatus,
+                  )
+                }
+              >
+                {MOBILITY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>LH-assessed mobility status</span>
+              <select
+                value={form.lh_mobility_status}
+                onChange={(event) =>
+                  setField(
+                    "lh_mobility_status",
+                    event.target.value as MobilityStatus,
+                  )
+                }
+              >
+                {MOBILITY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section className="drawer-section" aria-labelledby="matching-heading">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Escort matching inputs</p>
+              <h3 id="matching-heading">Escort and preferences</h3>
+            </div>
+          </div>
+          <div className="registry-form-grid">
+            <label className="checkbox-field">
+              <input
+                type="checkbox"
+                checked={form.escort_required}
+                onChange={(event) =>
+                  setField("escort_required", event.target.checked)
+                }
+              />
+              <span>Escort required</span>
+            </label>
+            <label>
+              <span>Escort gender preference</span>
+              <select
+                value={form.gender_preference}
+                onChange={(event) =>
+                  setField(
+                    "gender_preference",
+                    event.target.value as FormState["gender_preference"],
+                  )
+                }
+              >
+                <option value="">No preference</option>
+                <option value="F">Female</option>
+                <option value="M">Male</option>
+              </select>
+            </label>
+            <label>
+              <span>Dialect</span>
+              <input
+                value={form.dialect}
+                onChange={(event) => setField("dialect", event.target.value)}
+                maxLength={100}
+                placeholder="e.g. Hokkien"
+              />
+            </label>
+            <label>
+              <span>Weight (kg)</span>
+              <input
+                type="number"
+                min="0.01"
+                max="999.99"
+                step="0.01"
+                value={form.weight_kg}
+                onChange={(event) => setField("weight_kg", event.target.value)}
+                placeholder="Optional"
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="drawer-section" aria-labelledby="agreement-heading">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Certification and funding</p>
+              <h3 id="agreement-heading">NMTS and service agreements</h3>
+            </div>
+          </div>
+          <div className="registry-form-grid">
+            <label>
+              <span>NMTS effective date</span>
+              <input
+                type="date"
+                value={form.nmts_effective_date}
+                onChange={(event) =>
+                  setField("nmts_effective_date", event.target.value)
+                }
+              />
+            </label>
+            <label>
+              <span>NMTS expiry date</span>
+              <input
+                type="date"
+                value={form.nmts_expired_date}
+                onChange={(event) =>
+                  setField("nmts_expired_date", event.target.value)
+                }
+              />
+            </label>
+            <label>
+              <span>LH service agreement</span>
+              <select
+                value={form.lh_service_agreement}
+                onChange={(event) =>
+                  setField(
+                    "lh_service_agreement",
+                    event.target.value as FormState["lh_service_agreement"],
+                  )
+                }
+              >
+                <option value="">Not recorded</option>
+                {AGREEMENT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>SW service agreement</span>
+              <select
+                value={form.sw_service_agreement}
+                onChange={(event) =>
+                  setField(
+                    "sw_service_agreement",
+                    event.target.value as FormState["sw_service_agreement"],
+                  )
+                }
+              >
+                <option value="">Not recorded</option>
+                {AGREEMENT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>NMTS subsidy (%)</span>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                value={form.nmtr_percentage}
+                onChange={(event) =>
+                  setField("nmtr_percentage", event.target.value)
+                }
+                placeholder="e.g. 95"
+              />
+            </label>
+            <label>
+              <span>Co-payment ($)</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.co_payment}
+                onChange={(event) => setField("co_payment", event.target.value)}
+                placeholder="Optional"
+              />
+            </label>
+            <label>
+              <span>Date of entry</span>
+              <input
+                type="date"
+                value={form.date_of_entry}
+                onChange={(event) =>
+                  setField("date_of_entry", event.target.value)
+                }
+              />
+            </label>
+            <label>
+              <span>Action / updated date note</span>
+              <input
+                value={form.action_updated_date}
+                onChange={(event) =>
+                  setField("action_updated_date", event.target.value)
+                }
+                maxLength={200}
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="drawer-section" style={{ borderBottom: 0 }}>
+          {saveError && (
+            <p className="inline-message error" role="alert">
+              {saveError}
+            </p>
+          )}
+          <div
+            className="form-actions"
+            style={{ marginTop: saveError ? 16 : 0 }}
+          >
+            <button
+              type="submit"
+              className="primary-button"
+              disabled={saveState === "loading"}
+            >
+              {saveState === "loading"
+                ? "Saving…"
+                : patientId
+                  ? "Save changes"
+                  : "Add patient"}
+            </button>
+          </div>
+        </section>
+
+        {patientId && initial && (
+          <section className="drawer-section danger-zone">
+            <div>
+              <p className="eyebrow">Remove patient</p>
+              <h3>Delete patient record</h3>
+              <p>
+                This hides the patient from active registry and matching views,
+                while keeping the record for audit history.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="secondary-button danger-button"
+              onClick={() => setDeleteOpen(true)}
+            >
+              <Trash2 size={18} aria-hidden="true" />
+              Delete patient
+            </button>
+          </section>
+        )}
       </form>
 
       {patientId && initial && deleteOpen && (

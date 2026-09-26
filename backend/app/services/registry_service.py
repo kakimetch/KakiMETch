@@ -71,8 +71,7 @@ def get_patients(deleted: bool = False) -> list[PatientSummary]:
     deleted_filter = "is not null" if deleted else "is null"
     with get_connection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                f"""
+            cursor.execute(f"""
                 select
                     elderly_clients.id,
                     elderly_clients.name,

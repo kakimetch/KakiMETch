@@ -80,7 +80,9 @@ test("confirms a suggested escort and removes the patient module", async ({
 }) => {
   await mockStandardApi(page);
   await page.goto("/app/matching");
-  await expect(page.getByRole("button", { name: /Mdm Lim Siew Hoon/ })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Mdm Lim Siew Hoon/ }),
+  ).toBeVisible();
   await page.getByRole("button", { name: /Mdm Lim Siew Hoon/ }).click();
   await expect(
     page.getByRole("dialog", { name: "Mdm Lim Siew Hoon" }),
@@ -218,8 +220,13 @@ test("captures the patient modules and focused drawer at review widths", async (
   await mockStandardApi(page);
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/app/matching");
-  await expect(page.getByRole("button", { name: /Mdm Lim Siew Hoon/ })).toBeVisible();
-  await page.screenshot({ path: "output/playwright/screenshots/patient-modules-desktop.png", fullPage: true });
+  await expect(
+    page.getByRole("button", { name: /Mdm Lim Siew Hoon/ }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "output/playwright/screenshots/patient-modules-desktop.png",
+    fullPage: true,
+  });
 
   await page.getByRole("button", { name: /Mdm Lim Siew Hoon/ }).click();
   await expect(page.getByText("Speaks Hokkien")).toBeVisible();
@@ -246,8 +253,12 @@ test("has no automatically detectable WCAG 2.2 A or AA violations", async ({
 }) => {
   await mockStandardApi(page);
   await page.goto("/app/matching");
-  await expect(page.getByRole("button", { name: /Mdm Lim Siew Hoon/ })).toBeVisible();
-  const overview = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
+  await expect(
+    page.getByRole("button", { name: /Mdm Lim Siew Hoon/ }),
+  ).toBeVisible();
+  const overview = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    .analyze();
   expect(overview.violations).toEqual([]);
 
   await page.getByRole("button", { name: /Mdm Lim Siew Hoon/ }).click();

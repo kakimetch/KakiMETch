@@ -75,10 +75,10 @@ export default function LandingPage() {
             <p className="eyebrow">For Loving Heart escort coordinators</p>
             <h1>Escort matching that keeps you in charge</h1>
             <p className="hero-lede">
-              KakiMETch turns Rose&apos;s informal matching knowledge — appointment
-              timing, wheelchair handling, dialect and gender preference — into
-              clear, explainable suggestions. You review every match and confirm it
-              yourself.
+              KakiMETch turns Rose&apos;s informal matching knowledge —
+              appointment timing, wheelchair handling, dialect and gender
+              preference — into clear, explainable suggestions. You review every
+              match and confirm it yourself.
             </p>
             <div className="hero-actions">
               <Link href="/app/matching" className="primary-button">
@@ -94,7 +94,12 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="hero-illustration" aria-hidden="true">
-            <img src="/illustrations/co-driver.svg" alt="" width={699} height={699} />
+            <img
+              src="/illustrations/co-driver.svg"
+              alt=""
+              width={699}
+              height={699}
+            />
           </div>
         </section>
 
@@ -106,7 +111,9 @@ export default function LandingPage() {
           <div className="step-grid">
             {steps.map(({ icon: Icon, title, body }, index) => (
               <div className="step-card" key={title}>
-                <span className="step-number" aria-hidden="true">{index + 1}</span>
+                <span className="step-number" aria-hidden="true">
+                  {index + 1}
+                </span>
                 <span className="step-icon">
                   <Icon size={24} aria-hidden="true" />
                 </span>
@@ -123,9 +130,9 @@ export default function LandingPage() {
               <p className="eyebrow">Built for Loving Heart</p>
               <h2>Made for the way Rose already works</h2>
               <p className="section-copy">
-                Loving Heart&apos;s coordinators are experienced staff who work daily in
-                Excel and printed timetables. KakiMETch is designed to feel familiar,
-                not to replace their judgment with a black box.
+                Loving Heart&apos;s coordinators are experienced staff who work
+                daily in Excel and printed timetables. KakiMETch is designed to
+                feel familiar, not to replace their judgment with a black box.
               </p>
             </div>
             <div className="principles-layout">
@@ -143,7 +150,12 @@ export default function LandingPage() {
                 ))}
               </div>
               <div className="principles-illustration" aria-hidden="true">
-                <img src="/illustrations/rollin.svg" alt="" width={1307} height={787} />
+                <img
+                  src="/illustrations/rollin.svg"
+                  alt=""
+                  width={1307}
+                  height={787}
+                />
               </div>
             </div>
           </div>
@@ -152,7 +164,12 @@ export default function LandingPage() {
         <section className="closing-banner">
           <div className="closing-banner-inner">
             <div className="closing-illustration" aria-hidden="true">
-              <img src="/illustrations/all-good.svg" alt="" width={728} height={852} />
+              <img
+                src="/illustrations/all-good.svg"
+                alt=""
+                width={728}
+                height={852}
+              />
             </div>
             <div className="closing-copy">
               <h2>Ready to see today&apos;s matches?</h2>

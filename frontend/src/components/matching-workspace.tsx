@@ -259,7 +259,9 @@ export function MatchingWorkspace() {
           <Logo />
         </Link>
         <nav className="header-nav" aria-label="KakiMETch sections">
-          <Link href="/app/matching" aria-current="page">Escort matching</Link>
+          <Link href="/app/matching" aria-current="page">
+            Escort matching
+          </Link>
           <Link href="/app/registry">Patient registry</Link>
         </nav>
         <span className="demo-label">Demo workspace</span>

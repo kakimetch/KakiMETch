@@ -91,7 +91,9 @@ describe("PatientRegistry", () => {
     await user.click(
       await screen.findByRole("button", { name: /Mdm Lim Siew Hoon/i }),
     );
-    await user.click(await screen.findByRole("button", { name: "Delete patient" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Delete patient" }),
+    );
 
     const dialog = screen.getByRole("dialog", {
       name: "Delete Mdm Lim Siew Hoon",
@@ -105,7 +107,9 @@ describe("PatientRegistry", () => {
       within(dialog).getByRole("textbox"),
       patientDeletePhrase(patientSummary.name).toLocaleUpperCase(),
     );
-    await user.click(within(dialog).getByRole("button", { name: "Delete patient" }));
+    await user.click(
+      within(dialog).getByRole("button", { name: "Delete patient" }),
+    );
 
     await waitFor(() =>
       expect(apiMocks.deletePatient).toHaveBeenCalledWith("patient-1"),
@@ -122,7 +126,9 @@ describe("PatientRegistry", () => {
       await screen.findByRole("button", { name: /Mdm Lim Siew Hoon/i }),
     );
 
-    expect(await screen.findByText("Restore to active registry")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Restore to active registry"),
+    ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Restore patient" }));
 
     await waitFor(() =>
