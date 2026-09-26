@@ -2,10 +2,12 @@
 
 Current state of the system. Product scope and business rules are in [AGENTS.md](../AGENTS.md).
 
-## Components
+![KakiMETch architecture](architecture.png)
 
-Diagram: [architecture.drawio](architecture.drawio), page **Components** (open it in
-[diagrams.net](https://app.diagrams.net) or the VS Code *Draw.io Integration* extension).
+Source: [architecture.excalidraw](architecture.excalidraw) — open it at [excalidraw.com](https://excalidraw.com)
+(File → Open) or with the VS Code *Excalidraw* extension, and re-export `architecture.png` after editing.
+
+## Components
 
 - Services never import each other; shared code lives only in `kakimetch_common`.
 - All four services share one database (no per-service schemas).
@@ -15,8 +17,6 @@ Diagram: [architecture.drawio](architecture.drawio), page **Components** (open i
   suggestions and the final confirm check can never disagree.
 
 ## Trip lifecycle
-
-Diagram: [architecture.drawio](architecture.drawio), page **Trip lifecycle**.
 
 Matching (suggestions, roster) is only allowed on `accepted` or `scheduled` trips. Confirming an
 escort who fails a hard filter needs `assignment_override` plus a written reason.
