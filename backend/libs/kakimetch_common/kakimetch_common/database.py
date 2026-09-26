@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import psycopg2
 from psycopg2.extras import RealDictCursor, register_uuid
 
-from app.config import get_database_url
+from kakimetch_common.config import get_database_url
 
 
 @contextmanager

@@ -1,4 +1,4 @@
-from app.config import get_allowed_origins
+from kakimetch_common.config import get_allowed_origins
 
 
 def test_allowed_origins_includes_localhost_and_deployed_frontend(monkeypatch):

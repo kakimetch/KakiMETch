@@ -5,32 +5,16 @@ from typing import Any
 
 import openpyxl
 
-from app.database import get_connection
+from kakimetch_common.database import get_connection
+from kakimetch_common.excel import (
+    as_text,
+    is_yes,
+    mobility_from_equipment,
+    parse_excel_date,
+)
 
 DATA_DIRECTORY = Path(__file__).resolve().parents[2] / "data"
 WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-
-
-def parse_excel_date(value: object) -> date | None:
-    if isinstance(value, datetime):
-        return value.date()
-    if isinstance(value, date):
-        return value
-    if isinstance(value, (int, float)):
-        try:
-            return datetime.strptime(str(int(value)), "%Y%m%d").date()
-        except ValueError:
-            return None
-    return None
-
-
-def mobility_from_equipment(wheelchair: object, walking_frame: object) -> str:
-    """Derive the initial imported mobility value from the available source fields."""
-    if is_yes(wheelchair):
-        return "wheelchair_user"
-    if is_yes(walking_frame):
-        return "walking_frame_user"
-    return "ambulant"
 
 
 def expand_available_days(value: object) -> list[str]:
@@ -254,18 +238,6 @@ def build_address(row: Mapping[str, object]) -> str:
 
 def split_dialects(value: object) -> list[str]:
     return [dialect.strip() for dialect in as_text(value).split(",") if dialect.strip()]
-
-
-def is_yes(value: object) -> bool:
-    return as_text(value).upper() == "Y"
-
-
-def as_text(value: object) -> str:
-    if value is None:
-        return ""
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
-    return str(value).strip()
 
 
 if __name__ == "__main__":

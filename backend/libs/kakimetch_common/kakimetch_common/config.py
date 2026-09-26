@@ -1,10 +1,10 @@
 import os
-from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 
-# Load only the backend environment file so frontend settings stay separate.
-load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+# Local runs pick up backend/.env by walking up from the working directory;
+# containers get real environment variables and have no .env file.
+load_dotenv(find_dotenv(usecwd=True))
 
 
 def get_database_url() -> str:
