@@ -10,7 +10,8 @@ Four FastAPI services sharing one Supabase Postgres database and one small share
 | `services/scheduling` | 8004 | `POST /trips`, `POST /trips/{trip_id}/confirm-escort`, `POST /trips/{trip_id}/cancel-assignment`, `GET /schedule` |
 
 Every service also serves `GET /health`. Shared code lives in `libs/kakimetch_common`
-(`config`, `database`, `escort_rules` for the matching hard filters, `excel` import helpers).
+(`web.create_app` for CORS + `/health`, `config`, `database`, `escort_rules` for the escort
+hard filters and slot-conflict query, `excel` import helpers).
 
 ## Setup
 
@@ -18,7 +19,8 @@ Every service also serves `GET /health`. Shared code lives in `libs/kakimetch_co
 2. Apply the SQL files in `../supabase/migrations/` through the Supabase SQL Editor, in filename order.
 3. Run with Docker from the repo root: `docker compose up --build`.
    Or without Docker: `make install-backend` then `make dev-backend` (runs all four with reload).
-4. Import demo data from `backend/`: `python -m scripts.load_demo_data`.
+4. Import demo data from `backend/`, with the registry service running: `python -m scripts.load_demo_data`.
+   Clients go through `POST /registry/import` (set `REGISTRY_API_URL` if it is not on `http://localhost:8003`); escorts and trips are written directly.
 5. For the matching-only demo, with the assessment service running:
    `python -m scripts.prepare_matching_demo` (set `ASSESSMENT_API_URL` if it is not on `http://localhost:8001`).
 

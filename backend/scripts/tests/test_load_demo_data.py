@@ -1,9 +1,8 @@
-from datetime import date
+import httpx
 
 from scripts.load_demo_data import (
     expand_available_days,
-    mobility_from_equipment,
-    parse_excel_date,
+    upload_clients,
 )
 
 
@@ -12,11 +11,21 @@ def test_expand_available_days_supports_ranges_and_slashes():
     assert expand_available_days("Tue/Thu") == ["Tue", "Thu"]
 
 
-def test_mobility_from_equipment_uses_wheelchair_before_walking_frame():
-    assert mobility_from_equipment("Y", "Y") == "wheelchair_user"
-    assert mobility_from_equipment("N", "Y") == "walking_frame_user"
-    assert mobility_from_equipment("N", "N") == "ambulant"
+def test_upload_clients_sends_master_workbook_to_registry_import(tmp_path):
+    workbook = tmp_path / "Dummy_MasterData_Updated.xlsx"
+    workbook.write_bytes(b"xlsx-bytes")
+    received = {}
 
+    def handler(request: httpx.Request) -> httpx.Response:
+        received["path"] = request.url.path
+        received["body"] = request.read()
+        return httpx.Response(200, json={"imported_count": 300, "skipped_count": 0})
 
-def test_parse_excel_date_converts_yyyymmdd_values():
-    assert parse_excel_date(20260901) == date(2026, 9, 1)
+    client = httpx.Client(
+        transport=httpx.MockTransport(handler), base_url="http://registry"
+    )
+
+    assert upload_clients(workbook, client) == 300
+    assert received["path"] == "/registry/import"
+    assert b'filename="Dummy_MasterData_Updated.xlsx"' in received["body"]
+    assert b"xlsx-bytes" in received["body"]
