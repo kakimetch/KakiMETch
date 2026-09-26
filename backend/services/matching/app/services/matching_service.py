@@ -7,6 +7,7 @@ from kakimetch_common.escort_rules import (
     _as_text,
     _as_text_set,
     get_hard_filter_issues,
+    load_escorts_for_slot,
 )
 from app.schemas.match import EscortSuggestion, MatchResult
 
@@ -107,36 +108,13 @@ def get_escort_suggestions(trip_id: UUID, limit: int = 3) -> MatchResult:
                     warning="This trip does not require an escort.",
                 )
 
-            cursor.execute(
-                """
-                select
-                    escorts.id,
-                    escorts.name,
-                    escorts.gender,
-                    escorts.dialects,
-                    escorts.available_days,
-                    escorts.available_timeslot,
-                    escorts.wheelchair_handling_capable,
-                    exists (
-                        select 1
-                        from public.trips assigned_trips
-                        where assigned_trips.escort_id = escorts.id
-                          and assigned_trips.appt_date = %s
-                          and assigned_trips.appt_time = %s
-                          and assigned_trips.status = 'scheduled'
-                          and assigned_trips.id <> %s
-                    ) as has_conflict
-                from public.escorts as escorts
-                where %s is null or escorts.id <> %s
-                """,
-                (
-                    trip["appt_date"],
-                    trip["appt_time"],
-                    trip_id,
-                    trip["escort_id"],
-                    trip["escort_id"],
-                ),
-            )
+            escorts = [
+                escort
+                for escort in load_escorts_for_slot(
+                    cursor, trip_id, trip["appt_date"], trip["appt_time"]
+                )
+                if escort["id"] != trip["escort_id"]
+            ]
             escorts = cursor.fetchall()
 
     return rank_escorts(trip, trip["appt_date"], trip["appt_time"], escorts, limit)

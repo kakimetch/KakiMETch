@@ -8,7 +8,10 @@ from app.schemas.matching_workspace import (
     MatchingProfileUpdate,
     MatchingQueueItem,
 )
-from kakimetch_common.escort_rules import get_hard_filter_issues
+from kakimetch_common.escort_rules import (
+    get_hard_filter_issues,
+    load_escorts_for_slot,
+)
 
 
 class ClientNotFoundError(Exception):
@@ -116,37 +119,13 @@ def get_escort_options(trip_id: UUID) -> list[EscortOption]:
             if trip["status"] not in ("accepted", "scheduled"):
                 raise EscortOptionsNotAllowedError
 
-            cursor.execute(
-                """
-                select
-                    escorts.id,
-                    escorts.name,
-                    escorts.gender,
-                    escorts.dialects,
-                    escorts.available_days,
-                    escorts.available_timeslot,
-                    escorts.wheelchair_handling_capable,
-                    exists (
-                        select 1
-                        from public.trips assigned_trips
-                        where assigned_trips.escort_id = escorts.id
-                          and assigned_trips.appt_date = %s
-                          and assigned_trips.appt_time = %s
-                          and assigned_trips.status = 'scheduled'
-                          and assigned_trips.id <> %s
-                    ) as has_conflict
-                from public.escorts as escorts
-                where %s is null or escorts.id <> %s
-                order by escorts.name
-                """,
-                (
-                    trip["appt_date"],
-                    trip["appt_time"],
-                    trip_id,
-                    trip["escort_id"],
-                    trip["escort_id"],
-                ),
-            )
+            escorts: list[Mapping[str, object]] = [
+                escort
+                for escort in load_escorts_for_slot(
+                    cursor, trip_id, trip["appt_date"], trip["appt_time"]
+                )
+                if escort["id"] != trip["escort_id"]
+            ]
             escorts: list[Mapping[str, object]] = cursor.fetchall()
 
     options = [

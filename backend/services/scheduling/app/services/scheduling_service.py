@@ -8,7 +8,10 @@ from app.schemas.trip import (
     TripCancellation,
     TripConfirmation,
 )
-from kakimetch_common.escort_rules import get_hard_filter_issues
+from kakimetch_common.escort_rules import (
+    get_hard_filter_issues,
+    load_escorts_for_slot,
+)
 
 
 class TripNotFoundError(Exception):
@@ -56,30 +59,18 @@ def confirm_escort(
             if trip["status"] not in ("accepted", "scheduled"):
                 raise ConfirmationNotAllowedError
 
-            # Locking this row makes concurrent confirmations for the same escort run in order.
-            cursor.execute(
-                """
-                select
-                    escorts.id,
-                    escorts.available_days,
-                    escorts.available_timeslot,
-                    escorts.wheelchair_handling_capable,
-                    exists (
-                        select 1
-                        from public.trips assigned_trips
-                        where assigned_trips.escort_id = escorts.id
-                          and assigned_trips.appt_date = %s
-                          and assigned_trips.appt_time = %s
-                          and assigned_trips.status = 'scheduled'
-                          and assigned_trips.id <> %s
-                    ) as has_conflict
-                from public.escorts as escorts
-                where escorts.id = %s
-                for update
-                """,
-                (trip["appt_date"], trip["appt_time"], trip_id, request.escort_id),
+            escort = next(
+                iter(
+                    load_escorts_for_slot(
+                        cursor,
+                        trip_id,
+                        trip["appt_date"],
+                        trip["appt_time"],
+                        escort_id=request.escort_id,
+                    )
+                ),
+                None,
             )
-            escort = cursor.fetchone()
             if escort is None:
                 raise EscortNotFoundError
 
